@@ -18,12 +18,8 @@ final class ImagoTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
     
-    func testSampleDataImport() throws {
-        
-        // TODO: Move this code to a loader
-        // Test loading sample data from asset catalog
-        let asset = try XCTUnwrap(NSDataAsset(name: "sample_data"), "Could not load sample data asset")
-        let _ = try XCTUnwrap(JSONSerialization.jsonObject(with: asset.data, options: []), "Could not decode JSON")
+    func testSampleDataImport() throws {        
+        let asset = try XCTUnwrap(Photos.sampleData, "Could not load sample data asset")
 
         do {
             let decoder = JSONDecoder()

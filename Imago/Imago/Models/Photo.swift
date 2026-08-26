@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 typealias Photos = [Photo]
 
@@ -44,4 +45,8 @@ struct Photo: Codable {
     
     let user: User
     let urls: Urls
+}
+
+extension Photos {
+    static let sampleData = NSDataAsset(name: "sample_data")
 }
