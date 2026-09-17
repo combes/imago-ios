@@ -17,13 +17,13 @@ struct PhotoTests {
         #expect(photos.count == 30, "Invalid photo count")
     }
     
-    @Test func testLoadSampleData() async throws {
+    @Test func testLoadSampleData() throws {
         let photos = Photos.loadSampleData()
         #expect(photos.count == 5, "Invalid photo count")
         #expect(photos.first?.id == "1")
         #expect(photos.last?.id == "5")
         
-        let url = await photos.first!.url(forType: .regular)
-        await #expect(UIApplication.shared.canOpenURL(url) == true , "Should open URL")
+        let url = photos.first!.url(forType: .regular)
+        #expect(UIApplication.shared.canOpenURL(url) == true , "Should open URL")
     }
 }

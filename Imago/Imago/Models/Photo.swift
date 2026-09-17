@@ -11,14 +11,18 @@ import SwiftUI
 
 typealias Photos = [Photo]
 
+enum PhotoType: String {
+    case thumb, regular, small
+}
+
 struct Photo: Codable {
-    var id: String
-    var createdAt: String
-    var updatedAt: String
-    var height: Int
-    var width: Int
-    var description: String?
-    var likes: Int
+    let id: String
+    let createdAt: String
+    let updatedAt: String
+    let height: Int
+    let width: Int
+    let description: String?
+    let likes: Int
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -33,30 +37,26 @@ struct Photo: Codable {
     }
     
     struct User: Codable {
-        var name: String
-        var links: Links
+        let name: String
+        let links: Links
     }
     
     struct Links: Codable {
-        var profile: String
+        let profile: String
         
         enum CodingKeys: String, CodingKey {
             case profile = "self"
         }
     }
-    
-    enum PhotoType: String {
-        case thumb, regular, small
-    }
-    
+        
     struct Urls: Codable {
-        var thumb: String   // Grid
-        var regular: String // Viewing
-        var small: String   // Peek-Pop
+        let thumb: String   // Grid
+        let small: String   // Peek-Pop
+        let regular: String // Viewing
     }
     
-    var user: User
-    var urls: Urls
+    let user: User
+    let urls: Urls
 }
 
 extension Photo {
@@ -64,59 +64,18 @@ extension Photo {
         switch type {
         case .thumb:
             return URL(filePath: urls.thumb)
-        case .regular:
-            return URL(filePath: urls.regular)
         case .small:
             return URL(filePath: urls.small)
+        case .regular:
+            return URL(filePath: urls.regular)
         }
-    }
-    
-    func urlStringForBundleImage(id: Int, size: String) -> String? {
-        guard let imageURL = Bundle.main.url(forResource: "sample-image-\(id)-\(size)", withExtension: "jpg")
-        else {
-            return nil
-        }
-        return imageURL.relativePath
-    }
-    
-    mutating func revise(id: Int, height: Int, width: Int, description: String) {
-        self.id = "\(id)"
-        self.height = height
-        self.width = width
-        self.likes = Int.random(in: 0...12)
-        self.description = description
-        
-        // FIXME: Sample images should only be included for previews and unit testing - not copied for deployment.
-        // Update each photo type with derived local URL path (e.g. "file://<path>")
-        func updatePhoto(type: PhotoType, id: Int) {
-            guard let url = urlStringForBundleImage(id: id, size: type.rawValue)
-            else {
-                fatalError("Failed to load image for id: \(id), size: \(type.rawValue)")
-            }
-            switch type {
-            case .thumb:
-                self.urls.thumb = url
-            case .regular:
-                self.urls.regular = url
-            case .small:
-                self.urls.small = url
-            }
-        }
-        
-        updatePhoto(type: .regular, id: id)
-        updatePhoto(type: .small, id: id)
-        updatePhoto(type: .thumb, id: id)
-        
-        // Update owner of photos in user content
-        user.name = "Christopher Combes"
-        user.links.profile = "https://example.com"
     }
 }
 
 extension Photos {
     static let sampleData = NSDataAsset(name: "sample-data")
     
-    /// Loads real-world JSON data to validate parsing.
+    /// Loads real-world data to validate JSON parsing.
     /// - Returns: [Photo]
     static func loadRealWorldSampleData() -> Photos {
         guard let sampleData else {
@@ -139,16 +98,29 @@ extension Photos {
         let description: String
     }
     
+    /// Loads local data to support reference of bundled sample images suitable for UI testing.
+    /// - Returns: [Photo]]
     static func loadSampleData() -> Photos {
         var photos: Photos = []
         
-        // Load a pre-populated photo so we can source it for sample data creation.
-        let samplePhotos = Photos.loadRealWorldSampleData()
-        guard var photo = samplePhotos.first else {
-            fatalError("Could not find first photo")
+        func urlStringForBundleImage(id: String, type: PhotoType) -> String? {
+            guard let imageURL = Bundle.main.url(forResource: "sample-image-\(id)-\(type.rawValue)", withExtension: "jpg")
+            else {
+                return nil
+            }
+            return imageURL.relativePath
         }
-        
-        // FIXME: Although this code is working, it would be simpler to create the `Photo` objects directly.
+
+        func photoURLs(id: String) -> Photo.Urls {
+            guard let thumbUrl = urlStringForBundleImage(id: id, type: .thumb),
+                  let smallUrl = urlStringForBundleImage(id: id, type: .small),
+                  let regularUrl = urlStringForBundleImage(id: id, type: .regular)
+            else {
+                fatalError("Could not update URLs from bundle image")
+            }
+            
+            return Photo.Urls(thumb: thumbUrl, small: smallUrl, regular: regularUrl)
+        }
         
         // Sample content is associated with "Bundle Images"
         let sampleContent: [SampleContent] = [
@@ -160,12 +132,25 @@ extension Photos {
         ]
                 
         // Update array of photos so we can source it for UI testing
+        let user = Photo.User(name: "Christopher Combes", links: Photo.Links(profile: "https://github.com/combes"))
         for (index, object) in sampleContent.enumerated() {
-            let id = index + 1 // Image count starts at 1 (e.g. sample-image-1-regular.jpg)
-            photo.revise(id: id, height: object.height, width: object.width, description: object.description)
+            let id = "\(index + 1)" // Image count starts at 1 (e.g. sample-image-1-regular.jpg)
+            let urls = photoURLs(id: id)
+            let photo = Photo(id: id,
+                                  createdAt: "2026-08-12T06:58:31Z",
+                                  updatedAt: "2026-08-17T17:40:42Z",
+                                  height: object.height,
+                                  width: object.width,
+                                  description: object.description,
+                                  likes: Int.random(in: 0...12),
+                                  user: user,
+                                  urls: urls)
+
             photos.append(photo)
         }
         
         return photos
-    }    
+    }
+
+
 }

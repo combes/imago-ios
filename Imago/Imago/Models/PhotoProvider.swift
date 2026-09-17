@@ -8,20 +8,30 @@
 import Combine
 
 class PhotoProvider: ObservableObject {
+    @Published var isLoading: Bool = false
     @Published var photos: [Photo] = []
     private var searchTerm = ""
     private var isSampleData = false
     
     init(searchTerm: String = "", loadSampleData: Bool = false) {
         self.searchTerm = searchTerm
-        if loadSampleData {
-            isSampleData = true
-            photos = .loadSampleData()
-        }
+        isSampleData = loadSampleData
     }
     
-    func fetchPhotos() async throws {
-        guard !isSampleData else { return }
+    func fetchPhotos() {
+        isLoading = true
+
+        Task {
+            defer {
+                isLoading = false
+            }
+            guard !isSampleData
+            else {
+                photos = .loadSampleData()
+                return
+            }
+        }
+        
         /*
          TODO: Load JSON from server
          var urlComponents = URLComponents(string: "https://todo/get")!

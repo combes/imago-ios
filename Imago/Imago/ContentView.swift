@@ -12,11 +12,14 @@ struct ContentView: View {
     let imageURL = Photos.loadSampleData().first!.url(forType: .thumb)
 
     var body: some View {
-        if provider.photos.isEmpty {
+        if provider.isLoading {
             ProgressView()
+                .scaleEffect(2)
                 .frame(maxWidth: .infinity)
                 .aspectRatio(1, contentMode: .fill)
-                .background(Color.gray.opacity(0.1))
+                .onAppear {
+                    provider.fetchPhotos()
+                }
         } else {
             PhotoGrid(provider: provider)
         }
