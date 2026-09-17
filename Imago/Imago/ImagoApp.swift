@@ -11,7 +11,7 @@ import SwiftUI
 struct ImagoApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(provider: PhotoProvider())
         }
     }
 }

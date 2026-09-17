@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		16A1E89030589F84005D8F5A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 169EEF7F305366A100FD5688 /* Preview Assets.xcassets */; };
+		16A1E89130589F84005D8F5A /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 169EEF7F305366A100FD5688 /* Preview Assets.xcassets */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		16EE16E13033B49100E0D1A3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,14 +29,42 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		169EEF7F305366A100FD5688 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		16EE16D33033B49100E0D1A3 /* Imago.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Imago.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		16EE16E03033B49100E0D1A3 /* ImagoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImagoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		16EE16EA3033B49100E0D1A3 /* ImagoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ImagoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		16A1E8C43058A6F0005D8F5A /* Exceptions for "Imago" folder in "ImagoTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Bundle Images/sample-image-1-regular.jpg",
+				"Bundle Images/sample-image-1-small.jpg",
+				"Bundle Images/sample-image-1-thumb.jpg",
+				"Bundle Images/sample-image-2-regular.jpg",
+				"Bundle Images/sample-image-2-small.jpg",
+				"Bundle Images/sample-image-2-thumb.jpg",
+				"Bundle Images/sample-image-3-regular.jpg",
+				"Bundle Images/sample-image-3-small.jpg",
+				"Bundle Images/sample-image-3-thumb.jpg",
+				"Bundle Images/sample-image-4-regular.jpg",
+				"Bundle Images/sample-image-4-small.jpg",
+				"Bundle Images/sample-image-4-thumb.jpg",
+				"Bundle Images/sample-image-5-regular.jpg",
+				"Bundle Images/sample-image-5-small.jpg",
+				"Bundle Images/sample-image-5-thumb.jpg",
+			);
+			target = 16EE16DF3033B49100E0D1A3 /* ImagoTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		16EE16D53033B49100E0D1A3 /* Imago */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				16A1E8C43058A6F0005D8F5A /* Exceptions for "Imago" folder in "ImagoTests" target */,
+			);
 			path = Imago;
 			sourceTree = "<group>";
 		};
@@ -72,12 +105,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		169EEF7E3053667900FD5688 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				169EEF7F305366A100FD5688 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		16EE16CA3033B49100E0D1A3 = {
 			isa = PBXGroup;
 			children = (
 				16EE16D53033B49100E0D1A3 /* Imago */,
 				16EE16E33033B49100E0D1A3 /* ImagoTests */,
 				16EE16ED3033B49100E0D1A3 /* ImagoUITests */,
+				169EEF7E3053667900FD5688 /* Preview Content */,
 				16EE16D43033B49100E0D1A3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -212,6 +254,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A1E89030589F84005D8F5A /* Preview Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,6 +262,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16A1E89130589F84005D8F5A /* Preview Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -395,6 +439,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -426,6 +471,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Imago/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
