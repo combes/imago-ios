@@ -1,5 +1,5 @@
 # imago-ios
-A sample iOS application for interacting with the Unsplash API
+A sample iOS application for interacting with the Unsplash API.
 
 **Unsplash API Terms**
 

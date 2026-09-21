@@ -11,7 +11,12 @@ import SwiftUI
 struct ImagoApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(provider: PhotoProvider())
+            // If we are running unit tests, load an empty view instead
+            if NSClassFromString("XCTestCase") != nil {
+                Text("Running Tests...")
+            } else {
+                ContentView()
+            }
         }
     }
 }

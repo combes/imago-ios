@@ -11,7 +11,7 @@ import SwiftUI
 
 typealias Photos = [Photo]
 
-enum PhotoType: String {
+enum PhotoType: String, CaseIterable {
     case thumb, regular, small
 }
 
@@ -36,12 +36,12 @@ struct Photo: Codable {
         case urls
     }
     
-    struct User: Codable {
+    struct User: Codable, Hashable {
         let name: String
         let links: Links
     }
     
-    struct Links: Codable {
+    struct Links: Codable, Hashable {
         let profile: String
         
         enum CodingKeys: String, CodingKey {
@@ -49,7 +49,7 @@ struct Photo: Codable {
         }
     }
         
-    struct Urls: Codable {
+    struct Urls: Codable, Hashable {
         let thumb: String   // Grid
         let small: String   // Peek-Pop
         let regular: String // Viewing
@@ -57,6 +57,12 @@ struct Photo: Codable {
     
     let user: User
     let urls: Urls
+}
+
+extension Photo: Hashable {
+    static func == (lhs: Photo, rhs: Photo) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 extension Photo {
@@ -102,7 +108,6 @@ extension Photos {
     /// - Returns: [Photo]]
     static func loadSampleData() -> Photos {
         var photos: Photos = []
-        
         func urlStringForBundleImage(id: String, type: PhotoType) -> String? {
             guard let imageURL = Bundle.main.url(forResource: "sample-image-\(id)-\(type.rawValue)", withExtension: "jpg")
             else {
@@ -145,12 +150,34 @@ extension Photos {
                                   likes: Int.random(in: 0...12),
                                   user: user,
                                   urls: urls)
-
+            
             photos.append(photo)
         }
         
         return photos
     }
-
-
+    
+    /// Loads invalid data with focus on bad image URLs
+    /// - Returns: [Photo] with invalid data]
+    static func loadInvalidImageData() -> Photos {
+        var photos: Photos = []
+        
+        for index in 0..<30 {
+            let user = Photo.User(name: "", links: Photo.Links(profile: ""))
+            let urls = Photo.Urls(thumb: "invalid", small: "invalid", regular: "invalid")
+            let photo: Photo = .init(id: "\(index + 1)",
+                                     createdAt: "2026-08-12T06:58:31Z",
+                                     updatedAt: "2026-08-12T06:58:31Z",
+                                     height: 0,
+                                     width: 0,
+                                     description: nil,
+                                     likes: 0,
+                                     user: user,
+                                     urls: urls)
+            photos.append(photo)
+        }
+        
+        return photos
+    }
+    
 }

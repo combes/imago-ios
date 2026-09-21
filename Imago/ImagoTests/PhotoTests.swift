@@ -22,8 +22,22 @@ struct PhotoTests {
         #expect(photos.count == 5, "Invalid photo count")
         #expect(photos.first?.id == "1")
         #expect(photos.last?.id == "5")
-        
-        let url = photos.first!.url(forType: .regular)
-        #expect(UIApplication.shared.canOpenURL(url) == true , "Should open URL")
+    
+        for type in PhotoType.allCases {
+            let url = photos.first!.url(forType: type)
+            let fileExists = FileManager.default.fileExists(atPath: url.path)
+            #expect(fileExists == true , "File should exist")
+        }
+    }
+    
+    @Test func testLoadInvalidImageData() throws {
+        let photos = Photos.loadInvalidImageData()
+        #expect(photos.count == 30, "Invalid photo count")
+
+        for type in PhotoType.allCases {
+            let url = photos.first!.url(forType: type)
+            let fileExists = FileManager.default.fileExists(atPath: url.path)
+            #expect(fileExists == false , "File should NOT exist")
+        }
     }
 }

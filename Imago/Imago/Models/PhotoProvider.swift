@@ -6,29 +6,62 @@
 //
 
 import Combine
+import Foundation
+
+enum LoadDataType {
+    enum SampleDataType {
+        case empty
+        case error
+        case invalid
+        case valid
+    }
+    case sample(SampleDataType)
+    case live
+}
 
 class PhotoProvider: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var photos: [Photo] = []
-    private var searchTerm = ""
-    private var isSampleData = false
-    
-    init(searchTerm: String = "", loadSampleData: Bool = false) {
-        self.searchTerm = searchTerm
-        isSampleData = loadSampleData
+    @Published var error: Error?
+    private var loadDataType: LoadDataType = .live
+
+    init(loadDataType: LoadDataType = .live) {
+        self.loadDataType = loadDataType
     }
     
-    func fetchPhotos() {
+    func fetchPhotos(searchText: String = "") {
+        guard !isLoading else { return }
+        // TODO: Add task cancel
         isLoading = true
 
+        func fetchSampleData(type: LoadDataType.SampleDataType) -> [Photo] {
+            switch type {
+            case .empty:
+                return []
+            case .error:
+                error = URLError(.badServerResponse)
+            case .invalid:
+                return Photos.loadInvalidImageData()
+            case .valid:
+                return Photos.loadSampleData()
+            }
+            
+            return []
+        }
+        
+        func fetchLiveData() -> [Photo] {
+            []
+        }
+        
         Task {
             defer {
                 isLoading = false
             }
-            guard !isSampleData
-            else {
-                photos = .loadSampleData()
-                return
+            switch loadDataType {
+            case .sample(let type):
+                photos = fetchSampleData(type: type)
+            case .live:
+                photos = fetchLiveData()
             }
         }
         
