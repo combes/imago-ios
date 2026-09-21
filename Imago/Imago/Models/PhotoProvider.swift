@@ -37,7 +37,7 @@ class PhotoProvider: ObservableObject {
         func fetchSampleData(type: LoadDataType.SampleDataType) -> [Photo] {
             switch type {
             case .empty:
-                return []
+                break
             case .error:
                 error = URLError(.badServerResponse)
             case .invalid:
