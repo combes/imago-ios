@@ -163,14 +163,14 @@ extension Photos {
         var photos: Photos = []
         
         for index in 0..<30 {
-            let user = Photo.User(name: "", links: Photo.Links(profile: ""))
+            let user = Photo.User(name: "Christopher Combes", links: Photo.Links(profile: "https://github.com/combes"))
             let urls = Photo.Urls(thumb: "invalid", small: "invalid", regular: "invalid")
             let photo: Photo = .init(id: "\(index + 1)",
                                      createdAt: "2026-08-12T06:58:31Z",
                                      updatedAt: "2026-08-12T06:58:31Z",
                                      height: 0,
                                      width: 0,
-                                     description: nil,
+                                     description: "This is a photo description",
                                      likes: 0,
                                      user: user,
                                      urls: urls)

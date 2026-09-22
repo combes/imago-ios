@@ -42,26 +42,28 @@ struct ContentView: View {
 
 struct PhotoGrid: View {
     @StateObject var provider = PhotoProvider()
-    
+
+    let layout = [
+        GridItem(.flexible(minimum: 50, maximum: .infinity)),
+        GridItem(.flexible(minimum: 50, maximum: .infinity)),
+        GridItem(.flexible(minimum: 50, maximum: .infinity))
+    ]
+
     var body: some View {
         ScrollView {
             if provider.error != nil {
                 // TODO: Create error view
                 Text("Error")
             } else if provider.photos.isEmpty {
+                // TODO: Create empty view
                 Text("Empty")
             } else {
                 LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(minimum: 50, maximum: .infinity)),
-                        GridItem(.flexible(minimum: 50, maximum: .infinity)),
-                        GridItem(.flexible(minimum: 50, maximum: .infinity))
-                    ],
-                    alignment: .leading,
+                    columns: layout,
                     spacing: 10
                 ) {
                     ForEach(provider.photos, id: \.self) { photo in
-                        PhotoCell(imageURL: photo.url(forType: .thumb))
+                        PhotoCell(photo: photo)
                     }
                 }
             }
@@ -70,33 +72,40 @@ struct PhotoGrid: View {
 }
 
 struct PhotoCell: View {
-    let imageURL: URL
+    let photo: Photo
+    private var imageURL: URL  {
+        photo.url(forType: .thumb)
+    }
     var body: some View {
-        AsyncImage(url: imageURL) { phase in
-            switch phase {
-            case .empty:
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fill)
-                    .background(Color.gray.opacity(0.1))
-                
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
-                    .clipped()
-                
-            case .failure:
-                Image(systemName: "photo.badge.exclamationmark")
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, minHeight: 100)
-                    .aspectRatio(1, contentMode: .fill)
-                    .background(Color.gray.opacity(0.2))
-                
-            @unknown default:
-                EmptyView()
+        NavigationLink {
+            PhotoView(photo: photo)
+        } label: {
+            AsyncImage(url: imageURL) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(1, contentMode: .fill)
+                        .background(Color.gray.opacity(0.1))
+                    
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                        .aspectRatio(1, contentMode: .fit)
+                        .clipped()
+                    
+                case .failure:
+                    Image(systemName: "photo.badge.exclamationmark")
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, minHeight: 100)
+                        .aspectRatio(1, contentMode: .fill)
+                        .background(Color.gray.opacity(0.2))
+                    
+                @unknown default:
+                    EmptyView()
+                }
             }
         }
     }

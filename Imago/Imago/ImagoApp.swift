@@ -15,7 +15,11 @@ struct ImagoApp: App {
             if NSClassFromString("XCTestCase") != nil {
                 Text("Running Tests...")
             } else {
+#if targetEnvironment(simulator)
+                ContentView(provider: PhotoProvider(loadDataType: .sample(.valid)))
+#else
                 ContentView()
+#endif
             }
         }
     }
