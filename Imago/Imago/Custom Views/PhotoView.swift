@@ -15,55 +15,71 @@ struct PhotoView: View {
     
     @State private var currentZoom = 0.0
     @State private var totalZoom = 1.0
+    private var isUnsplashLabelHidden: Bool {
+        totalZoom == 1 ? false: true
+    }
     
     var body: some View {
         // TODO: Resolve code duplication with code in ContentView
-        AsyncImage(url: imageURL) { phase in
-            switch phase {
-            case .empty:
-                ProgressView()
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fill)
-                    .background(.gray.opacity(0.1))
-                
-            case .success(let image):
-                image
-                    .resizable()
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .aspectRatio(1, contentMode: .fit)
-                    .scaleEffect(currentZoom + totalZoom)
-                    .gesture(
-                        MagnifyGesture()
-                            .onChanged { value in
-                                currentZoom = value.magnification - 1
+        ZStack {
+            AsyncImage(url: imageURL) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .aspectRatio(1, contentMode: .fill)
+                        .background(.gray.opacity(0.1))
+                    
+                case .success(let image):
+                    image
+                        .resizable()
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                        .aspectRatio(1, contentMode: .fit)
+                        .scaleEffect(currentZoom + totalZoom)
+                        .gesture(
+                            MagnifyGesture()
+                                .onChanged { value in
+                                    currentZoom = value.magnification - 1
+                                }
+                                .onEnded { value in
+                                    totalZoom += currentZoom
+                                    currentZoom = 0
+                                }
+                        )
+                        .accessibilityZoomAction { action in
+                            // Allow assistive technologies to control the zoom level
+                            if action.direction == .zoomIn {
+                                totalZoom += 1
+                            } else {
+                                totalZoom -= 1
                             }
-                            .onEnded { value in
-                                totalZoom += currentZoom
-                                currentZoom = 0
-                            }
-                    )
-                    .accessibilityZoomAction { action in
-                        // Allow assistive technologies to control the zoom level
-                        if action.direction == .zoomIn {
-                            totalZoom += 1
-                        } else {
-                            totalZoom -= 1
                         }
-                    }
-                
-            case .failure:
-                Image(systemName: "photo.badge.exclamationmark")
-                    .foregroundColor(.gray)
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .aspectRatio(1, contentMode: .fill)
-                    .background(Color.gray.opacity(0.2))
-                
-            @unknown default:
-                EmptyView()
+                    
+                case .failure:
+                    Image(systemName: "photo.badge.exclamationmark")
+                        .foregroundColor(.gray)
+                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                        .aspectRatio(1, contentMode: .fill)
+                        .background(Color.gray.opacity(0.2))
+                    
+                @unknown default:
+                    EmptyView()
+                }
             }
+            VStack {
+                Text("Source: Unsplash")
+                    .font(.callout)
+                    .foregroundStyle(.gray)
+                    .padding(.top, 2)
+                    .padding(.trailing, 15)
+                    .opacity(isUnsplashLabelHidden ? 0 : 1)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity,
+                   alignment: .bottomTrailing)
         }
         Spacer()
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 2) {
             Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
             // TODO: Create SwiftUI modifier to add this support based on debug mode
 //                .environment(\.openURL, OpenURLAction { url in
@@ -74,6 +90,7 @@ struct PhotoView: View {
                 .padding(4)
                 .background(.thinMaterial)
             Text(photo.description ?? "")
+                .font(.footnote)
                 .padding(4)
                 .background(.thinMaterial)
         }
