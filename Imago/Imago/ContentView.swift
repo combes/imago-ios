@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject var provider = PhotoProvider()
+    var provider = PhotoProvider()
     @State private var searchIsActive = false
     @State private var searchText: String = ""
     
@@ -41,7 +41,7 @@ struct ContentView: View {
 }
 
 struct PhotoGrid: View {
-    @StateObject var provider = PhotoProvider()
+    var provider = PhotoProvider()
 
     let layout = [
         GridItem(.flexible(minimum: 50, maximum: .infinity)),
@@ -76,6 +76,7 @@ struct PhotoCell: View {
     private var imageURL: URL  {
         photo.url(forType: .thumb)
     }
+    
     var body: some View {
         NavigationLink {
             PhotoView(photo: photo)

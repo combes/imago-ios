@@ -7,6 +7,7 @@
 
 import Combine
 import Foundation
+import Observation
 
 enum LoadDataType {
     enum SampleDataType {
@@ -19,10 +20,11 @@ enum LoadDataType {
     case live
 }
 
-class PhotoProvider: ObservableObject {
-    @Published var isLoading: Bool = false
-    @Published var photos: [Photo] = []
-    @Published var error: Error?
+@Observable
+final class PhotoProvider {
+    var isLoading: Bool = false
+    var photos: [Photo] = []
+    var error: Error?
     private var loadDataType: LoadDataType = .live
 
     init(loadDataType: LoadDataType = .live) {
