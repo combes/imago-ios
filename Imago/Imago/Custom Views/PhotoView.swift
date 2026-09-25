@@ -34,7 +34,7 @@ struct PhotoView: View {
                     image
                         .resizable()
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fit)
+                        .aspectRatio(1, contentMode: .fill)
                         .scaleEffect(currentZoom + totalZoom)
                         .gesture(
                             MagnifyGesture()
