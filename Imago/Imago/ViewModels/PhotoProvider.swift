@@ -50,8 +50,54 @@ final class PhotoProvider {
             return []
         }
         
-        func fetchLiveData() -> [Photo] {
-            []
+        func fetchLiveData() async throws -> [Photo] {
+            guard searchText.isEmpty == false else {
+                return []
+            }
+            
+            var urlComponents = URLComponents(string: "https://api.unsplash.com/search/photos")!
+            
+            // Define the query parameters
+            let parameters: [String: String] = [
+            "client_id": "TODO:",
+            "page": "1",
+            "per_page": "30",
+            "query": searchText // TODO: URL-encode text
+            ]
+            
+            // Add the query parameters to the URL
+            urlComponents.queryItems = parameters.map { key, value in
+                URLQueryItem(name: key, value: value)
+            }
+            
+            // Ensure we have a valid URL and throw a URLError if it fails
+            guard let url = urlComponents.url else {
+                throw URLError(.badURL)
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "GET"
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            assert(response as? HTTPURLResponse != nil , "Response is not HTTPURLResponse")
+
+            guard let httpResponse = response as? HTTPURLResponse
+            else
+            {
+                throw URLError(.badServerResponse)
+            }
+            
+            // See https://unsplash.com/documentation#error-messages
+            switch httpResponse.statusCode {
+            case 200: break
+            case 400: throw URLError(.badURL)
+            case 401: throw URLError(.userAuthenticationRequired)
+            case 403: throw URLError(.userAuthenticationRequired)
+            case 404: throw URLError(.resourceUnavailable)
+            default: throw URLError(.unknown)
+            }
+            
+            return try Photos.parse(data: data)
         }
         
         Task {
@@ -62,32 +108,13 @@ final class PhotoProvider {
             case .sample(let type):
                 photos = fetchSampleData(type: type)
             case .live:
-                photos = fetchLiveData()
+                do {
+                    photos = try await fetchLiveData()
+                } catch {
+                    // TODO: Handle assignment of 'error' property to notify UI
+                    debugPrint(error)
+                }
             }
         }
-        
-        /*
-         TODO: Load JSON from server
-         var urlComponents = URLComponents(string: "https://todo/get")!
-         
-         // Define the parameters.
-         let parameters: [String: String] = [
-         "key": "value",
-         "key": "value"
-         ]
-         
-         // Add the query parameters to the URL.
-         urlComponents.queryItems = parameters.map { key, value in
-         URLQueryItem(name: key, value: value)
-         }
-         
-         // Ensure we have a valid URL and throw a URLError if it fails.
-         guard let url = urlComponents.url else {
-             throw URLError(.badURL)
-         }
-
-         // Use URLSession to fetch the data asynchronously.
-         let (data, response) = try await URLSession.shared.data(from: url)
-         */
     }
 }

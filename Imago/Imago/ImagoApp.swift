@@ -14,12 +14,10 @@ struct ImagoApp: App {
             // If we are running unit tests, load an empty view instead
             if NSClassFromString("XCTestCase") != nil {
                 Text("Running Tests...")
-            } else {
-#if targetEnvironment(simulator)
+            } else if ProcessInfo.processInfo.arguments.contains("--sampleData") {
                 ContentView(provider: PhotoProvider(loadDataType: .sample(.valid)))
-#else
+            } else {
                 ContentView()
-#endif
             }
         }
     }

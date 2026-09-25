@@ -30,6 +30,7 @@ struct ContentView: View {
         .defaultScrollAnchor(.top, for: .alignment)
         .searchable(text: $searchText,
                     isPresented: $searchIsActive,
+                    placement: .navigationBarDrawer,
                     prompt: "Look for something")
         .onSubmit(of: .search) {
             provider.fetchPhotos(searchText: searchText)
@@ -42,12 +43,12 @@ struct ContentView: View {
 
 struct PhotoGrid: View {
     var provider = PhotoProvider()
-
-    let layout = [
-        GridItem(.flexible(minimum: 50, maximum: .infinity)),
-        GridItem(.flexible(minimum: 50, maximum: .infinity)),
-        GridItem(.flexible(minimum: 50, maximum: .infinity))
-    ]
+    static let gridSpacing: CGFloat = 2
+    static let gridItem = GridItem(.flexible(minimum: 50,
+                                             maximum: .infinity),
+                                   spacing: gridSpacing,
+                                   alignment: .leading)
+    let layout = [ gridItem, gridItem, gridItem ]
 
     var body: some View {
         ScrollView {
@@ -56,11 +57,12 @@ struct PhotoGrid: View {
                 Text("Error")
             } else if provider.photos.isEmpty {
                 // TODO: Create empty view
+                // TODO: Show "Search" view if search text is empty
                 Text("Empty")
             } else {
                 LazyVGrid(
                     columns: layout,
-                    spacing: 10
+                    spacing: Self.gridSpacing
                 ) {
                     ForEach(provider.photos, id: \.self) { photo in
                         PhotoCell(photo: photo)

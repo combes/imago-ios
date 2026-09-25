@@ -11,10 +11,34 @@ import SwiftUI
 
 typealias Photos = [Photo]
 
+/// Provides three types of images for display:
+/// thumb - for display in photo grid
+/// regular - for display upon selecting a photo thumbnail
+/// small - for display in peek-pop
 enum PhotoType: String, CaseIterable {
     case thumb, regular, small
 }
 
+/// Provides conformance to match server response:
+/// {"total":10,"total_pages":2,"results":
+///    [
+///        Photo 1...n
+///    ]
+/// }
+struct UnsplashAPIResponse: Codable {
+    let total: Int
+    let totalPages: Int
+    let photos: Photos
+    
+    enum CodingKeys: String, CodingKey {
+        case total
+        case totalPages = "total_pages"
+        case photos = "results"
+    }
+}
+
+/// Provides conformance to each photo contained within
+/// the JSON server response.
 struct Photo: Codable {
     let id: String
     let createdAt: String
@@ -67,35 +91,54 @@ extension Photo: Hashable {
 
 extension Photo {
     func url(forType type: PhotoType) -> URL {
+        let path: String
+        
         switch type {
         case .thumb:
-            return URL(filePath: urls.thumb)
+            path = urls.thumb
         case .small:
-            return URL(filePath: urls.small)
+            path = urls.small
         case .regular:
-            return URL(filePath: urls.regular)
+            path = urls.regular
         }
+        
+        // Local image file paths start with "/" and not "https://".
+        // Local files are used to fetch sample imagery for testing purposes.
+        if path.starts(with: "/") {
+            assert(path.contains("https://") == false, "Invalid local path")
+            return URL(filePath: path)
+        }
+
+        // Remote image paths start with "https://".
+        assert(path.contains("https://"), "Invalid remote path")
+        return URL(string: path) ?? URL(filePath: "")
     }
 }
-
+// TODO: Move to separate file for organization
 extension Photos {
     static let sampleData = NSDataAsset(name: "sample-data")
     
-    /// Loads real-world data to validate JSON parsing.
+    /// Parse JSON content as `UnsplashAPIResponse`
+    /// - Parameter data: data containing JSON object
+    /// - Returns: [Photo]]
+    static func parse(data: Data) throws -> Photos {
+        let decoder = JSONDecoder()
+        var photos: Photos = []
+        
+        let result = try decoder.decode(UnsplashAPIResponse.self, from: data)
+        photos = result.photos
+        
+        return photos
+    }
+    
+    /// Loads local real-world data to validate JSON parsing.
     /// - Returns: [Photo]
-    static func loadRealWorldSampleData() -> Photos {
+    static func loadRealWorldSampleData() throws -> Photos {
         guard let sampleData else {
             fatalError("No sample data")
         }
-
-        let decoder = JSONDecoder()
-        var photos: Photos = []
-        do {
-            photos = try decoder.decode(Photos.self, from: sampleData.data)
-        } catch {
-            debugPrint("Error decoding sample data: \(error.localizedDescription)")
-        }
-        return photos
+        
+        return try parse(data: sampleData.data)
     }
     
     struct SampleContent {
@@ -161,10 +204,11 @@ extension Photos {
     /// - Returns: [Photo] with invalid data]
     static func loadInvalidImageData() -> Photos {
         var photos: Photos = []
+        let invalidPath = "/invalid_local_path"
         
         for index in 0..<30 {
             let user = Photo.User(name: "Christopher Combes", links: Photo.Links(profile: "https://github.com/combes"))
-            let urls = Photo.Urls(thumb: "invalid", small: "invalid", regular: "invalid")
+            let urls = Photo.Urls(thumb: invalidPath, small: invalidPath, regular: invalidPath)
             let photo: Photo = .init(id: "\(index + 1)",
                                      createdAt: "2026-08-12T06:58:31Z",
                                      updatedAt: "2026-08-12T06:58:31Z",
