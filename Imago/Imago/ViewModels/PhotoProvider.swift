@@ -103,20 +103,21 @@ final class PhotoProvider {
             return try Photos.parse(data: data)
         }
         
-        Task {
+        Task { [weak self] in
             defer {
-                isLoading = false
+                self?.isLoading = false
             }
             
             do {
-                switch loadDataType {
+                let dataType = self?.loadDataType ?? .sample(.empty)
+                switch dataType {
                 case .sample(let type):
-                    photos = try fetchSampleData(type: type)
+                    self?.photos = try fetchSampleData(type: type)
                 case .live:
-                    photos = try await fetchLiveData()
+                    self?.photos = try await fetchLiveData()
                 }
             } catch {
-                self.error = error
+                self?.error = error
             }
         }
     }
