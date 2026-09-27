@@ -21,6 +21,7 @@ struct ContentView: View {
                     .scaleEffect(2)
                     .frame(maxWidth: .infinity)
                     .aspectRatio(1, contentMode: .fill)
+                Spacer()
             } else {
                 PhotoGrid(provider: provider)
             }
@@ -41,6 +42,26 @@ struct ContentView: View {
     }
 }
 
+struct StatusView: View {
+    let image: String
+    let color: Color
+    let title: String
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            Image(systemName: image)
+                .font(.system(size: 100))
+                .foregroundStyle(color)
+            Text(title)
+                .font(.largeTitle)
+                .padding(2)
+                .foregroundStyle(color)
+            Spacer()
+        }
+        .padding(.top, 64)
+    }
+}
+
 struct PhotoGrid: View {
     var provider = PhotoProvider()
     static let gridSpacing: CGFloat = 2
@@ -49,17 +70,18 @@ struct PhotoGrid: View {
                                    spacing: gridSpacing,
                                    alignment: .leading)
     let layout = [ gridItem, gridItem, gridItem ]
-
+    
     var body: some View {
-        ScrollView {
-            if provider.error != nil {
-                // TODO: Create error view
-                Text("Error")
-            } else if provider.photos.isEmpty {
-                // TODO: Create empty view
-                // TODO: Show "Search" view if search text is empty
-                Text("Empty")
-            } else {
+        if provider.error != nil {
+            StatusView(image: "exclamationmark.warninglight.fill",
+                       color: .yellow,
+                       title: "Server Error")
+        } else if provider.photos.isEmpty {
+            StatusView(image: "photo.stack",
+                       color: .gray.opacity(0.5),
+                       title: "Empty")
+        } else {
+            ScrollView {
                 LazyVGrid(
                     columns: layout,
                     spacing: Self.gridSpacing
@@ -89,7 +111,7 @@ struct PhotoCell: View {
                     ProgressView()
                         .frame(maxWidth: .infinity)
                         .aspectRatio(1, contentMode: .fill)
-                        .background(Color.gray.opacity(0.1))
+                        .background(.gray.opacity(0.2))
                     
                 case .success(let image):
                     image
@@ -104,7 +126,7 @@ struct PhotoCell: View {
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity, minHeight: 100)
                         .aspectRatio(1, contentMode: .fill)
-                        .background(Color.gray.opacity(0.2))
+                        .background(.gray.opacity(0.2))
                     
                 @unknown default:
                     EmptyView()

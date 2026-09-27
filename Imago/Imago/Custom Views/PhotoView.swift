@@ -60,7 +60,7 @@ struct PhotoView: View {
                         .foregroundColor(.gray)
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                         .aspectRatio(1, contentMode: .fill)
-                        .background(Color.gray.opacity(0.2))
+                        .background(.gray.opacity(0.2))
                     
                 @unknown default:
                     EmptyView()

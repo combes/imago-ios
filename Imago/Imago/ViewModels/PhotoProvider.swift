@@ -32,15 +32,14 @@ final class PhotoProvider {
     
     func fetchPhotos(searchText: String = "") {
         guard !isLoading else { return }
-        // TODO: Add task cancel
         isLoading = true
 
-        func fetchSampleData(type: LoadDataType.SampleDataType) -> [Photo] {
+        func fetchSampleData(type: LoadDataType.SampleDataType) throws -> [Photo] {
             switch type {
             case .empty:
                 break
             case .error:
-                error = URLError(.badServerResponse)
+                throw URLError(.badServerResponse)
             case .invalid:
                 return Photos.loadInvalidImageData()
             case .valid:
@@ -56,13 +55,17 @@ final class PhotoProvider {
             }
             
             var urlComponents = URLComponents(string: "https://api.unsplash.com/search/photos")!
+            // It is not documented in the API https://unsplash.com/documentation#search-photos
+            // However, on testing of the web interface it appears hyphens are used in place of spaces.
+            // let escapedText = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
+            let escapedText = searchText.components(separatedBy: .whitespaces).joined(separator: "-")
             
             // Define the query parameters
             let parameters: [String: String] = [
             "client_id": "TODO:",
             "page": "1",
             "per_page": "30",
-            "query": searchText // TODO: URL-encode text
+            "query": escapedText
             ]
             
             // Add the query parameters to the URL
@@ -104,16 +107,16 @@ final class PhotoProvider {
             defer {
                 isLoading = false
             }
-            switch loadDataType {
-            case .sample(let type):
-                photos = fetchSampleData(type: type)
-            case .live:
-                do {
+            
+            do {
+                switch loadDataType {
+                case .sample(let type):
+                    photos = try fetchSampleData(type: type)
+                case .live:
                     photos = try await fetchLiveData()
-                } catch {
-                    // TODO: Handle assignment of 'error' property to notify UI
-                    debugPrint(error)
                 }
+            } catch {
+                self.error = error
             }
         }
     }
