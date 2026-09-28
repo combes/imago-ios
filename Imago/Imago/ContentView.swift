@@ -33,6 +33,8 @@ struct ContentView: View {
                     isPresented: $searchIsActive,
                     placement: .navigationBarDrawer,
                     prompt: "Look for something")
+        .textInputAutocapitalization(.never)
+        .autocorrectionDisabled(true)
         .onSubmit(of: .search) {
             provider.fetchPhotos(searchText: searchText)
         }

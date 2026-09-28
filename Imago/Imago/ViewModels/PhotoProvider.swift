@@ -60,9 +60,11 @@ final class PhotoProvider {
             // let escapedText = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
             let escapedText = searchText.components(separatedBy: .whitespaces).joined(separator: "-")
             
+            let accessKey = try UnsplashAccessKey.loadAccessKey() ?? ""
+            
             // Define the query parameters
             let parameters: [String: String] = [
-            "client_id": "TODO:",
+            "client_id": accessKey,
             "page": "1",
             "per_page": "30",
             "query": escapedText
