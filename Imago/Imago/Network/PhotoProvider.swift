@@ -24,6 +24,16 @@ final class PhotoProvider {
     var isLoading: Bool = false
     var photos: [Photo] = []
     var error: Error?
+    
+    private class DataObject {
+        let data: Data
+        init(data: Data) {
+            self.data = data
+        }
+    }
+    
+    @ObservationIgnored
+    private var cache: NSCache<NSString, DataObject> = .init()
     private var loadDataType: LoadDataType = .live
 
     init(loadDataType: LoadDataType = .live) {
@@ -52,6 +62,11 @@ final class PhotoProvider {
         func fetchLiveData() async throws -> [Photo] {
             guard searchText.isEmpty == false else {
                 return []
+            }
+            
+            // Check cache first to avoid server call
+            if let data = cache.object(forKey: searchText as NSString) {
+                return try Photos.parse(data: data.data)
             }
             
             var urlComponents = URLComponents(string: "https://api.unsplash.com/search/photos")!
@@ -101,6 +116,13 @@ final class PhotoProvider {
             case 404: throw URLError(.resourceUnavailable)
             default: throw URLError(.unknown)
             }
+            
+            // Store data in memory-based cache
+            cache.setObject(
+                .init(data: data),
+                forKey: searchText as NSString,
+                cost: data.count
+            )
             
             return try Photos.parse(data: data)
         }
