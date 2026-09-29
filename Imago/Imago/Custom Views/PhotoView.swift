@@ -95,7 +95,7 @@ struct PhotoView: View {
 //                    print("Open \(url)")
 //                    return .handled
 //                })
-                .foregroundStyle(.black)
+                .foregroundStyle(.foreground)
                 .padding(4)
                 .background(.thinMaterial)
             Text(photo.description ?? "")
