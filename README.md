@@ -17,7 +17,8 @@ Steps - Live Data
 2. Create a new app under this account.
 3. In the Xcode project tree add a new plain text file named 'client-key'.
 4. Copy the "Access Key" from the Unsplash app and paste into the 'client-key' file.
-5. Build and run to show live data.
+5. Edit Scheme > Imago > Edit Scheme... > Uncheck --sampleData
+6. Build and run to show live data.
 
 **Unsplash API Terms**
 
