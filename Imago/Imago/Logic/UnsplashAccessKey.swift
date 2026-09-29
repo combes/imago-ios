@@ -10,7 +10,6 @@ import Foundation
 enum UnsplashAccessKeyError: Error, CustomStringConvertible {
     case missing
     case unreadable
-    case replace
     
     var description: String {
         switch self {
@@ -18,14 +17,11 @@ enum UnsplashAccessKeyError: Error, CustomStringConvertible {
             "Unable to locate client-key file"
         case .unreadable:
             "Unable to read client-key file"
-        case .replace:
-            "Please replace the placeholder key in file client-key"
         }
     }
 }
 
 struct UnsplashAccessKey {
-    static let replaceKey = "REPLACE_WITH_UNPLASH_ACCESS_KEY"
     static var accessKey: String?
     
     /// Loads Unsplash access key from bundled resource file.
@@ -48,11 +44,6 @@ struct UnsplashAccessKey {
         }
 
         accessKey = fileContents.trimmingCharacters(in: .whitespacesAndNewlines)
-
-        guard accessKey != replaceKey
-        else {
-            throw UnsplashAccessKeyError.replace
-        }
         
         return accessKey
     }

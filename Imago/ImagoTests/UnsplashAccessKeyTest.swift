@@ -10,18 +10,7 @@ import Testing
 
 struct UnsplashAccessKeyTest {
     
-    @Test func loadAccessKey() throws {
-        do {
-            let key = try UnsplashAccessKey.loadAccessKey()
-            #expect(key != nil)
-        } catch let error as UnsplashAccessKeyError {
-            switch error {
-            case .missing, .unreadable:
-                fatalError(error.description)
-            case .replace:
-                // Test should pass but user must replace key for server access
-                break
-            }
-        }
+    @Test("Verify client-key is present in bundle") func loadAccessKey() throws {
+        _ = try UnsplashAccessKey.loadAccessKey()
     }
 }
