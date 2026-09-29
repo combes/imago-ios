@@ -12,14 +12,14 @@ import UIKit
 struct PhotoTests {
     
     @Test("Test parsing of valid server response to ensure client processing")
-    func testRealWorldSampleDataImport() async throws {
+    func loadRealWorldSampleData() async throws {
         try #require(Photos.sampleData != nil, "Sample data should not be nil")
         let photos = try Photos.loadRealWorldSampleData()
         #expect(photos.count == 30, "Invalid photo count")
     }
     
     @Test("Test parsing of invalid JSON from server response")
-    func testParseInvalid() throws {
+    func parseInvalid() throws {
         let invalidJSON = """
         {
             "total": 1,
@@ -33,7 +33,7 @@ struct PhotoTests {
     }
     
     @Test("Test parsing of sample data and image file paths")
-    func testLoadSampleData() throws {
+    func loadSampleData() throws {
         let photos = Photos.loadSampleData()
         #expect(photos.count == 5, "Invalid photo count")
         #expect(photos.first?.id == "1")
@@ -47,7 +47,7 @@ struct PhotoTests {
     }
     
     @Test("Test handling of invalid image paths for display in UI")
-    func testLoadInvalidImageData() throws {
+    func loadInvalidImageData() throws {
         let photos = Photos.loadInvalidImageData()
         #expect(photos.count == 30, "Invalid photo count")
 
