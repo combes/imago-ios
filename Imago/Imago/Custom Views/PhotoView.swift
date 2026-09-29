@@ -12,11 +12,20 @@ struct PhotoView: View {
     private var imageURL: URL  {
         photo.url(forType: .regular)
     }
+
+    @Environment(\.sampleData) var sampleData
     
     @State private var currentZoom = 0.0
     @State private var totalZoom = 1.0
     private var isUnsplashLabelHidden: Bool {
-        totalZoom == 1 ? false: true
+        if sampleData {
+            // Always hide since sample images are not from Unsplash
+            return true
+        }
+        if totalZoom == 1 {
+            return false
+        }
+        return true
     }
     
     var body: some View {
@@ -107,8 +116,10 @@ struct PhotoView: View {
 
 #Preview {
     PhotoView(photo: Photos.loadSampleData().first!)
+        .environment(\.sampleData, true)
 }
 
 #Preview("Image Error") {
     PhotoView(photo: Photos.loadInvalidImageData().first!)
+        .environment(\.sampleData, true)
 }

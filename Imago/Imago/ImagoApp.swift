@@ -5,7 +5,12 @@
 //  Created by Christopher Combes on 8/17/26.
 //
 
+import Observation
 import SwiftUI
+
+extension EnvironmentValues {
+    @Entry var sampleData = false
+}
 
 @main
 struct ImagoApp: App {
@@ -16,6 +21,7 @@ struct ImagoApp: App {
                 Text("Running Tests...")
             } else if ProcessInfo.processInfo.arguments.contains("--sampleData") {
                 ContentView(provider: PhotoProvider(loadDataType: .sample(.valid)))
+                    .environment(\.sampleData, true)
             } else {
                 ContentView()
             }
