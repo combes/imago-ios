@@ -43,7 +43,7 @@ struct PhotoView: View {
                     image
                         .resizable()
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fill)
+                        .aspectRatio(contentMode: .fill)
                         .scaleEffect(currentZoom + totalZoom)
                         .gesture(
                             MagnifyGesture()
@@ -75,6 +75,7 @@ struct PhotoView: View {
                     EmptyView()
                 }
             }
+            
             VStack {
                 Text("Source: Unsplash")
                     .font(.callout)
@@ -84,10 +85,17 @@ struct PhotoView: View {
                     .opacity(isUnsplashLabelHidden ? 0 : 1)
                 Spacer()
             }
-            .frame(maxWidth: .infinity,
-                   alignment: .bottomTrailing)
         }
+        .frame(
+            minWidth: 0,
+            maxWidth: .infinity,
+            minHeight: 0,
+            maxHeight: .infinity,
+            alignment: .bottomLeading
+        )
+
         Spacer()
+
         VStack(alignment: .leading, spacing: 2) {
             Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
             // TODO: Create SwiftUI modifier to add this support based on debug mode
