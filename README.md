@@ -18,8 +18,9 @@ This application is intended for demonstration purposes only and not to be deplo
 
 *Demonstration*
 1. Check out this project from GitHub.
-2. Build and run.
-3. Search only works with live daata.
+2. Edit Scheme > Imago > Edit Scheme... > Check --sampleData
+3. Build and run.
+4. Search only works with live daata.
 
 *Live Data*
 1. Create an Unsplash developer account at [Unsplash](https://unsplash.com/documentation#creating-a-developer-account).
