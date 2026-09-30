@@ -10,7 +10,7 @@ import Testing
 
 struct UnsplashAccessKeyTest {
     
-    @Test("Verify client-key is present in bundle") func loadAccessKey() throws {
+    @Test("Verify access key file is present in bundle") func loadAccessKey() throws {
         _ = try UnsplashAccessKey.loadAccessKey()
     }
 }

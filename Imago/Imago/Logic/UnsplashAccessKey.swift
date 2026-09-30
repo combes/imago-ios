@@ -14,14 +14,15 @@ enum UnsplashAccessKeyError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .missing:
-            "Unable to locate client-key file"
+            "Unable to locate \(UnsplashAccessKey.accessKeyName) file"
         case .unreadable:
-            "Unable to read client-key file"
+            "Unable to read \(UnsplashAccessKey.accessKeyName) file"
         }
     }
 }
 
 struct UnsplashAccessKey {
+    static let accessKeyName = "access-key"
     static var accessKey: String?
     
     /// Loads Unsplash access key from bundled resource file.
@@ -34,7 +35,7 @@ struct UnsplashAccessKey {
     static func loadAccessKey() throws -> String? {
         guard accessKey == nil else { return accessKey }
         
-        guard let fileURL = Bundle.main.url(forResource: "client-key", withExtension: nil)
+        guard let fileURL = Bundle.main.url(forResource: accessKeyName, withExtension: nil)
         else {
             throw UnsplashAccessKeyError.missing
         }
