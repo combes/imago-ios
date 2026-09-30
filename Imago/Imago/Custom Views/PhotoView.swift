@@ -102,6 +102,7 @@ struct PhotoView: View {
                 .font(.footnote)
                 .padding(4)
                 .background(.thinMaterial)
+                .opacity(photo.description.isNilOrEmpty ? 0 : 1)
         }
         .frame(
             minWidth: 0,
