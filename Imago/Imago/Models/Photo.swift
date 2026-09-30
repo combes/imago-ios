@@ -69,7 +69,7 @@ struct Photo: Codable {
         let profile: String
         
         enum CodingKeys: String, CodingKey {
-            case profile = "self"
+            case profile = "html"
         }
     }
         
