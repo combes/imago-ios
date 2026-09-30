@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Imago/doc/imago-icon.png" alt="Loupe" width="256">
+  <img src="Imago/doc/imago-icon.png" alt="Loupe" width="128">
 </p>
 
 # Imago
