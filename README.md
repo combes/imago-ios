@@ -8,9 +8,9 @@ Image is an iOS sample application for interacting with the Unsplash API.
 *'Imago' (Latin for 'image')*.
 
 <p align="center">
-  <img src="doc/iphone-1.png" alt="Initial screen state upon launch" width="200">
-  <img src="doc/iphone-2.png" alt="Searching for pumpkins" width="200">
-  <img src="doc/iphone-3.png" alt="Viewing a pumpkin photo" width="200">
+  <img src="Imago/doc/iphone-1.png" alt="Initial screen state upon launch" width="200">
+  <img src="Imago/doc/iphone-2.png" alt="Searching for pumpkins" width="200">
+  <img src="Imago/doc/iphone-3.png" alt="Viewing a pumpkin photo" width="200">
 </p>
 
 ## Goals
