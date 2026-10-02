@@ -35,15 +35,14 @@ final class PhotoProvider {
     @ObservationIgnored
     private var cache: NSCache<NSString, DataObject> = .init()
     private var loadDataType: LoadDataType = .live
-
+    
     init(loadDataType: LoadDataType = .live) {
         self.loadDataType = loadDataType
     }
     
     func fetchPhotos(searchText: String = "") {
-        guard !isLoading else { return }
         isLoading = true
-
+        
         func fetchSampleData(type: LoadDataType.SampleDataType) throws -> [Photo] {
             switch type {
             case .empty:
@@ -79,10 +78,10 @@ final class PhotoProvider {
             
             // Define the query parameters
             let parameters: [String: String] = [
-            "client_id": accessKey,
-            "page": "1",
-            "per_page": "30",
-            "query": escapedText
+                "client_id": accessKey,
+                "page": "1",
+                "per_page": "30",
+                "query": escapedText
             ]
             
             // Add the query parameters to the URL
@@ -97,10 +96,10 @@ final class PhotoProvider {
             
             var request = URLRequest(url: url)
             request.httpMethod = "GET"
-
+            
             let (data, response) = try await URLSession.shared.data(for: request)
             assert(response as? HTTPURLResponse != nil , "Response is not HTTPURLResponse")
-
+            
             guard let httpResponse = response as? HTTPURLResponse
             else
             {
@@ -127,21 +126,21 @@ final class PhotoProvider {
             return try Photos.parse(data: data)
         }
         
-        Task { [weak self] in
+        Task {
             defer {
-                self?.isLoading = false
+                isLoading = false
             }
             
             do {
-                let dataType = self?.loadDataType ?? .sample(.empty)
+                let dataType = loadDataType
                 switch dataType {
                 case .sample(let type):
-                    self?.photos = try fetchSampleData(type: type)
+                    photos = try fetchSampleData(type: type)
                 case .live:
-                    self?.photos = try await fetchLiveData()
+                    photos = try await fetchLiveData()
                 }
-            } catch {
-                self?.error = error
+            } catch let fetchError {
+                error = fetchError
             }
         }
     }
