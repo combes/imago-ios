@@ -26,6 +26,7 @@ struct ContentView: View {
                 PhotoGrid(provider: provider)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .defaultScrollAnchor(.bottom, for: .initialOffset)
         .defaultScrollAnchor(.bottom, for: .sizeChanges)
         .defaultScrollAnchor(.top, for: .alignment)
@@ -50,7 +51,8 @@ struct StatusView: View {
     let title: String
     
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(alignment: .center, spacing: 0) {
+            Spacer()
             Image(systemName: image)
                 .font(.system(size: 100))
                 .foregroundStyle(color)
@@ -60,7 +62,6 @@ struct StatusView: View {
                 .foregroundStyle(color)
             Spacer()
         }
-        .padding(.top, 64)
     }
 }
 
@@ -124,6 +125,8 @@ struct PhotoCell: View {
                         .clipped()
                     
                 case .failure:
+                    // FIXME: Seeing "cancelled" as the reason for not loading some images from Unsplash
+                    let _ = debugPrint("Failed to load image from \(imageURL.absoluteString): \(phase.error?.localizedDescription ?? "No error provided")")
                     Image(systemName: "photo.badge.exclamationmark")
                         .foregroundColor(.gray)
                         .frame(maxWidth: .infinity, minHeight: 100)
@@ -138,8 +141,9 @@ struct PhotoCell: View {
     }
 }
 
-#Preview {
+#Preview("Sample Photos") {
     ContentView(provider: PhotoProvider(loadDataType: .sample(.valid)))
+        .environment(\.sampleData, true)
 }
 
 #Preview("Image Error") {

@@ -12,7 +12,7 @@ struct PhotoView: View {
     private var imageURL: URL  {
         photo.url(forType: .regular)
     }
-
+    
     @Environment(\.sampleData) var sampleData
     
     @State private var currentZoom = 0.0
@@ -30,7 +30,7 @@ struct PhotoView: View {
     
     var body: some View {
         // TODO: Resolve code duplication with code in ContentView
-        ZStack {
+        VStack(alignment: .center) {
             AsyncImage(url: imageURL) { phase in
                 switch phase {
                 case .empty:
@@ -40,90 +40,80 @@ struct PhotoView: View {
                         .background(.gray.opacity(0.1))
                     
                 case .success(let image):
-                    image
-                        .resizable()
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                        .aspectRatio(contentMode: .fill)
-                        .scaleEffect(currentZoom + totalZoom)
-                        .gesture(
-                            MagnifyGesture()
-                                .onChanged { value in
-                                    currentZoom = value.magnification - 1
+                    VStack(alignment: .leading) {
+                        image
+                            .resizable()
+                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                            .aspectRatio(contentMode: .fit)
+                            .scaleEffect(currentZoom + totalZoom)
+                            .gesture(
+                                MagnifyGesture()
+                                    .onChanged { value in
+                                        currentZoom = value.magnification - 1
+                                    }
+                                    .onEnded { value in
+                                        totalZoom += currentZoom
+                                        currentZoom = 0
+                                    }
+                            )
+                            .accessibilityZoomAction { action in
+                                // Allow assistive technologies to control the zoom level
+                                if action.direction == .zoomIn {
+                                    totalZoom += 1
+                                } else {
+                                    totalZoom -= 1
                                 }
-                                .onEnded { value in
-                                    totalZoom += currentZoom
-                                    currentZoom = 0
-                                }
-                        )
-                        .accessibilityZoomAction { action in
-                            // Allow assistive technologies to control the zoom level
-                            if action.direction == .zoomIn {
-                                totalZoom += 1
-                            } else {
-                                totalZoom -= 1
                             }
+                            .overlay(alignment: .bottom) {
+                                HStack {
+                                    Spacer()
+                                    VStack(alignment: .trailing) {
+                                        Text("Source: Unsplash")
+                                            .font(.footnote)
+                                            .foregroundStyle(.white)
+                                            .padding([.leading, .trailing], 8)
+                                            .background(.black)
+                                            .opacity(0.6)
+                                    }
+                                }
+                                .opacity(isUnsplashLabelHidden ? 0 : 1)
+                            }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
+                            // TODO: Create SwiftUI modifier to add this support based on debug mode
+                            //                .environment(\.openURL, OpenURLAction { url in
+                            //                    print("Open \(url)")
+                            //                    return .handled
+                            //                })
+                                .foregroundStyle(.foreground)
+                                .font(.subheadline)
+                                .background(.thinMaterial)
+                            Text(photo.description ?? "")
+                                .font(.footnote)
+                                .background(.thinMaterial)
+                                .opacity(photo.description.isNilOrEmpty ? 0 : 1)
                         }
+                        .padding(.leading, 4)
+                    }
+                    Spacer()
                     
                 case .failure:
-                    Image(systemName: "photo.badge.exclamationmark")
-                        .foregroundColor(.gray)
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fill)
-                        .background(.gray.opacity(0.2))
+                    StatusView(image: "photo.badge.exclamationmark",
+                               color: .gray.opacity(0.5),
+                               title: "Empty")
                     
                 @unknown default:
                     EmptyView()
                 }
             }
-            
-            VStack {
-                Text("Source: Unsplash")
-                    .font(.callout)
-                    .foregroundStyle(.gray)
-                    .padding(.top, 2)
-                    .padding(.trailing, 15)
-                    .opacity(isUnsplashLabelHidden ? 0 : 1)
-                Spacer()
-            }
         }
-        .frame(
-            minWidth: 0,
-            maxWidth: .infinity,
-            minHeight: 0,
-            maxHeight: .infinity,
-            alignment: .bottomLeading
-        )
-
-        Spacer()
-
-        VStack(alignment: .leading, spacing: 2) {
-            Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
-            // TODO: Create SwiftUI modifier to add this support based on debug mode
-//                .environment(\.openURL, OpenURLAction { url in
-//                    print("Open \(url)")
-//                    return .handled
-//                })
-                .foregroundStyle(.foreground)
-                .padding(4)
-                .background(.thinMaterial)
-            Text(photo.description ?? "")
-                .font(.footnote)
-                .padding(4)
-                .background(.thinMaterial)
-                .opacity(photo.description.isNilOrEmpty ? 0 : 1)
-        }
-        .frame(
-            minWidth: 0,
-            maxWidth: .infinity,
-            minHeight: 0,
-            maxHeight: .infinity,
-            alignment: .bottomLeading
-        )
-        .padding()
+        .frame(maxWidth: .infinity, alignment: .center)
+        .ignoresSafeArea(edges: .top)
     }
 }
 
-#Preview {
+#Preview("Sample Photo") {
     PhotoView(photo: Photos.loadSampleData().first!)
         .environment(\.sampleData, true)
 }
