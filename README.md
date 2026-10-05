@@ -43,7 +43,7 @@ This application is intended for demonstration purposes only and not to be deplo
 3. Creating local data was a challenge in that I wanted the SwiftUI code to remain unchanged so I can swap out real-world data calls with local data. Local images are bundled and sourced using `URL(filePath: path)` (where path begins with "file://"), while remote images are sourced via `URL(string: path)` (where path begins with "https://").
 5. Incorporated several UI states with testing (imagery, empty, JSON error, image error).
 6. Had a mis-step with adding the 'access-key' file as I added it with a placeholder, added this file to git ignore, assuming the file would remain, but further changes would be ignored (i.e. accidentally attempting to check in this file with the real-world key). Instead, user will need to manually add this file to the project.
-7. Discovered searching using spaces using the API 'GET' endpoint does not support [url-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) strings (e.g. "pumpkin%20patch").  Instead, a hyphen is used (e.g. "pumpkin-patch").
+7. Discovered searching using spaces with the API 'GET' endpoint does not support [url-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) strings (e.g. "pumpkin%20patch").  Instead, a hyphen is required (e.g. "pumpkin-patch").
 
 ## Success
 
