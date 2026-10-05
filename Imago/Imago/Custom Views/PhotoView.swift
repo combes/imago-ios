@@ -54,6 +54,10 @@ struct PhotoView: View {
                                     .onEnded { value in
                                         totalZoom += currentZoom
                                         currentZoom = 0
+                                        if totalZoom < 1 {
+                                            // Reset zoom if image is smaller than original size
+                                            totalZoom = 1
+                                        }
                                     }
                             )
                             .accessibilityZoomAction { action in
