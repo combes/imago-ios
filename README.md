@@ -14,9 +14,19 @@ Image is an iOS sample application for interacting with the Unsplash API.
 </p>
 
 ## Goals
+
 1. Build an iOS application that queries the Unsplash API using a search term.
 2. Architect the code to support display of sample data for immediate build and run.
 3. Incorporate a variety of technologies as development proceeds.
+
+## Features
+
+1. Build and run using embedded sample data for demonstration purposes.
+2. Search Unsplash using a search term.
+3. Display thumbnail grid of image results using small image size.
+4. Select thumbnail to show large image size, photographer, tappable profile link, and description.
+5. Zoom in on any image using pinch open/close.
+6. Double-tap on image to zoom out after image zoom.
 
 ## Usage
 
@@ -44,12 +54,13 @@ This application is intended for demonstration purposes only and not to be deplo
 5. Incorporated several UI states with testing (imagery, empty, JSON error, image error).
 6. Had a mis-step with adding the 'access-key' file as I added it with a placeholder, added this file to git ignore, assuming the file would remain, but further changes would be ignored (i.e. accidentally attempting to check in this file with the real-world key). Instead, user will need to manually add this file to the project.
 7. Discovered searching using spaces with the API 'GET' endpoint does not support [url-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) strings (e.g. "pumpkin%20patch").  Instead, a hyphen is required (e.g. "pumpkin-patch").
+8. Learned how to use gesture recognizers in SwiftUI. I had previously made use of gestures using Objective-C (and UIKit) many years ago and making use of this knowledge with SwiftUI.
 
 ## Success
 
 1. Decided in advanced to build the app using local data so I can fully test it while offline.
 2. Handling the variety of states using local data with testing (imagery, empty, JSON error, image error).
-3. Pulled a live sample JSON API response to validate parsing, image sizes, etc.
+3. Pulled a live sample JSON API response to validate parsing, image sizes, etc., in advance, prior to making live queries within the app.
 
 ## License
 
