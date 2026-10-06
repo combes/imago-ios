@@ -20,29 +20,32 @@ struct PhotoView: View {
     @State private var isDragging = false
     @State private var offset = CGSize.zero
     @State private var totalOffset = CGSize.zero
+    private var isZoomed: Bool {
+        totalZoom > 1
+    }
+    
+    private var shouldHideLabels: Bool {
+        isDragging || isZoomed
+    }
     
     private var isUnsplashLabelHidden: Bool {
-        if sampleData {
+        if sampleData || shouldHideLabels {
             // Always hide since sample images are not from Unsplash
             return true
         }
-        // FIXME: Resolve visibility
-        if totalZoom == 1 {
-            return false
-        }
-        return true
+        return false
     }
 
     var dragGesture: some Gesture {
         DragGesture()
             .onChanged { gesture in
-                if totalZoom > 1 {
+                if isZoomed {
                     let x = (gesture.translation.width / totalZoom)
                     let y = (gesture.translation.height / totalZoom)
                     offset.width = totalOffset.width + x
                     offset.height = totalOffset.height + y
+                    isDragging = true
                 }
-                isDragging = true
             }
             .onEnded { _ in
                 totalOffset.width = offset.width
@@ -98,7 +101,6 @@ struct PhotoView: View {
                             .offset(offset)
                             .aspectRatio(contentMode: .fit)
                             .scaleEffect(currentZoom + totalZoom)
-                        // TODO: Add double-tap gesture to restore zoom
                         // Disovered drag gesture must be added before magnify gesture
                             .gesture(dragGesture)
                             .gesture(magnifyGesture)
@@ -123,17 +125,11 @@ struct PhotoView: View {
                                             .opacity(0.6)
                                     }
                                 }
-                                // FIXME: Resolve visibility
                                 .opacity(isUnsplashLabelHidden ? 0 : 1)
                             }
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
-                            // TODO: Create SwiftUI modifier to add this support based on debug mode
-                            //                .environment(\.openURL, OpenURLAction { url in
-                            //                    print("Open \(url)")
-                            //                    return .handled
-                            //                })
                                 .foregroundStyle(.foreground)
                                 .font(.subheadline)
                                 .background(.thinMaterial)
@@ -143,7 +139,7 @@ struct PhotoView: View {
                                 .opacity(photo.description.isNilOrEmpty ? 0 : 1)
                         }
                         .padding(.leading, 4)
-                        .opacity(isDragging ? 0 : 1)
+                        .opacity(shouldHideLabels ? 0 : 1)
                     }
                     Spacer()
                     
