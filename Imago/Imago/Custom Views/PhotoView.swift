@@ -17,17 +17,57 @@ struct PhotoView: View {
     
     @State private var currentZoom = 0.0
     @State private var totalZoom = 1.0
+    @State private var isDragging = false
+    @State private var offset = CGSize.zero
+    @State private var totalOffset = CGSize.zero
+    
     private var isUnsplashLabelHidden: Bool {
         if sampleData {
             // Always hide since sample images are not from Unsplash
             return true
         }
+        // FIXME: Resolve visibility
         if totalZoom == 1 {
             return false
         }
         return true
     }
+
+    var dragGesture: some Gesture {
+        DragGesture()
+            .onChanged { gesture in
+                if totalZoom > 1 {
+                    let x = (gesture.translation.width / totalZoom)
+                    let y = (gesture.translation.height / totalZoom)
+                    offset.width = totalOffset.width + x
+                    offset.height = totalOffset.height + y
+                }
+                isDragging = true
+            }
+            .onEnded { _ in
+                totalOffset.width = offset.width
+                totalOffset.height = offset.height
+                isDragging = false
+            }
+    }
     
+    var magnifyGesture: some Gesture {
+        MagnifyGesture()
+            .onChanged { value in
+                currentZoom = value.magnification - 1
+            }
+            .onEnded { value in
+                totalZoom += currentZoom
+                currentZoom = 0
+                if totalZoom < 1 {
+                    // Reset offset and zoom if image is smaller than original size
+                    offset = .zero
+                    totalOffset = .zero
+                    totalZoom = 1
+                }
+            }
+    }
+
     var body: some View {
         // TODO: Resolve code duplication with code in ContentView
         VStack(alignment: .center) {
@@ -44,22 +84,13 @@ struct PhotoView: View {
                         image
                             .resizable()
                             .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                            .offset(offset)
                             .aspectRatio(contentMode: .fit)
                             .scaleEffect(currentZoom + totalZoom)
-                            .gesture(
-                                MagnifyGesture()
-                                    .onChanged { value in
-                                        currentZoom = value.magnification - 1
-                                    }
-                                    .onEnded { value in
-                                        totalZoom += currentZoom
-                                        currentZoom = 0
-                                        if totalZoom < 1 {
-                                            // Reset zoom if image is smaller than original size
-                                            totalZoom = 1
-                                        }
-                                    }
-                            )
+                        // TODO: Add double-tap gesture to restore zoom
+                        // Disovered drag gesture must be added before magnify gesture
+                            .gesture(dragGesture)
+                            .gesture(magnifyGesture)
                             .accessibilityZoomAction { action in
                                 // Allow assistive technologies to control the zoom level
                                 if action.direction == .zoomIn {
@@ -80,6 +111,7 @@ struct PhotoView: View {
                                             .opacity(0.6)
                                     }
                                 }
+                                // FIXME: Resolve visibility
                                 .opacity(isUnsplashLabelHidden ? 0 : 1)
                             }
                         
@@ -99,6 +131,7 @@ struct PhotoView: View {
                                 .opacity(photo.description.isNilOrEmpty ? 0 : 1)
                         }
                         .padding(.leading, 4)
+                        .opacity(isDragging ? 0 : 1)
                     }
                     Spacer()
                     
