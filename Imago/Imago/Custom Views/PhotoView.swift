@@ -61,13 +61,24 @@ struct PhotoView: View {
                 currentZoom = 0
                 if totalZoom < 1 {
                     // Reset offset and zoom if image is smaller than original size
-                    offset = .zero
-                    totalOffset = .zero
-                    totalZoom = 1
+                    resetZoom()
                 }
             }
     }
-
+    
+    var tapGesture: some Gesture {
+        TapGesture(count: 2)
+            .onEnded { _ in
+                resetZoom()
+            }
+    }
+    
+    func resetZoom() {
+        offset = .zero
+        totalOffset = .zero
+        totalZoom = 1
+    }
+    
     var body: some View {
         // TODO: Resolve code duplication with code in ContentView
         VStack(alignment: .center) {
@@ -91,6 +102,7 @@ struct PhotoView: View {
                         // Disovered drag gesture must be added before magnify gesture
                             .gesture(dragGesture)
                             .gesture(magnifyGesture)
+                            .gesture(tapGesture)
                             .accessibilityZoomAction { action in
                                 // Allow assistive technologies to control the zoom level
                                 if action.direction == .zoomIn {
