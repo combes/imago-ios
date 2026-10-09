@@ -53,6 +53,15 @@ struct PhotoGrid: View {
                                    spacing: gridSpacing,
                                    alignment: .leading)
     let layout = [ gridItem, gridItem, gridItem ]
+
+    @State private var presentedPhotos: [Photo] = []
+    @State private var presentedPhoto: Photo? {
+        didSet {
+            if let presentedPhoto {
+                presentedPhotos = [ presentedPhoto ]
+            }
+        }
+    }
     
     var body: some View {
         if provider.error != nil {
@@ -64,13 +73,20 @@ struct PhotoGrid: View {
                        color: .gray.opacity(0.5),
                        title: "Empty")
         } else {
-            ScrollView {
-                LazyVGrid(
-                    columns: layout,
-                    spacing: Self.gridSpacing
-                ) {
-                    ForEach(provider.photos, id: \.self) { photo in
-                        PhotoCell(photo: photo)
+            NavigationStack(path: $presentedPhotos) {
+                ScrollView {
+                    LazyVGrid(
+                        columns: layout,
+                        spacing: Self.gridSpacing
+                    ) {
+                        ForEach(provider.photos, id: \.self) { photo in
+                            NavigationLink(value: photo) {
+                                PhotoCell(photo: photo, presentedPhoto: $presentedPhotos)
+                            }
+                        }
+                    }
+                    .navigationDestination(for: Photo.self) { photo in
+                        PhotoView(photo: photo)
                     }
                 }
             }
@@ -78,8 +94,64 @@ struct PhotoGrid: View {
     }
 }
 
+struct PhotoPreview: View {
+    let photo: Photo
+    
+    private var imageURL: URL  {
+        photo.url(forType: .small)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(photo.user.name)
+                .font(.callout)
+                .bold()
+            if !photo.description.isNilOrEmpty {
+                Text(photo.description ?? "")
+                    .font(.callout)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.leading)
+        .padding(.top, 5)
+        
+        AsyncImage(url: imageURL) { phase in
+            switch phase {
+            case .empty:
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .aspectRatio(1, contentMode: .fill)
+                    .background(.gray.opacity(0.2))
+                
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    .aspectRatio(1, contentMode: .fill)
+                    .clipped()
+                    .gesture(TapGesture(count: 1).onEnded({ value in
+                        print("tapped image")
+                    }))
+                
+            case .failure:
+                Image(systemName: "photo.badge.exclamationmark")
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .aspectRatio(1, contentMode: .fill)
+                    .background(.gray.opacity(0.2))
+                
+            @unknown default:
+                EmptyView()
+            }
+        }
+    }
+}
+
 struct PhotoCell: View {
     let photo: Photo
+    @Binding var presentedPhoto: [Photo]
+    
     private var imageURL: URL  {
         photo.url(forType: .thumb)
     }
@@ -116,6 +188,13 @@ struct PhotoCell: View {
                 @unknown default:
                     EmptyView()
                 }
+            }
+            .contextMenu {
+                Button("See Photo") {
+                    presentedPhoto.append(photo)
+                }
+            } preview: {
+                PhotoPreview(photo: photo)
             }
         }
     }
