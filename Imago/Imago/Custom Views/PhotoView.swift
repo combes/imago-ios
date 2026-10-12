@@ -114,32 +114,35 @@ struct PhotoView: View {
                                 }
                             }
                             .overlay(alignment: .bottom) {
-                                HStack {
-                                    Spacer()
-                                    VStack(alignment: .trailing) {
-                                        Text("Source: Unsplash")
-                                            .font(.footnote)
-                                            .foregroundStyle(.white)
-                                            .padding([.leading, .trailing], 8)
-                                            .background(.black)
-                                            .opacity(0.6)
+                                if !isUnsplashLabelHidden {
+                                    HStack {
+                                        Spacer()
+                                        VStack(alignment: .trailing) {
+                                            Text("Source: Unsplash")
+                                                .font(.footnote)
+                                                .foregroundStyle(.white)
+                                                .padding([.leading, .trailing], 8)
+                                                .background(.black)
+                                                .opacity(0.6)
+                                        }
                                     }
                                 }
-                                .opacity(isUnsplashLabelHidden ? 0 : 1)
                             }
                         
-                        VStack(alignment: .leading, spacing: 4) {
-                            Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
-                                .foregroundStyle(.foreground)
-                                .font(.subheadline)
-                                .background(.thinMaterial)
-                            Text(photo.description ?? "")
-                                .font(.footnote)
-                                .background(.thinMaterial)
-                                .opacity(photo.description.isNilOrEmpty ? 0 : 1)
+                        if !shouldHideLabels {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
+                                    .foregroundStyle(.foreground)
+                                    .font(.subheadline)
+                                    .background(.thinMaterial)
+                                if !photo.description.isNilOrEmpty {
+                                    Text(photo.description ?? "")
+                                        .font(.footnote)
+                                        .background(.thinMaterial)
+                                }
+                            }
+                            .padding(.leading, 4)
                         }
-                        .padding(.leading, 4)
-                        .opacity(shouldHideLabels ? 0 : 1)
                     }
                     Spacer()
                     

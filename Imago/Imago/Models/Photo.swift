@@ -14,7 +14,7 @@ typealias Photos = [Photo]
 /// Provides three types of images for display:
 /// thumb - for display in photo grid
 /// regular - for display upon selecting a photo thumbnail
-/// small - for display in peek-pop
+/// small - for display in context menu
 enum PhotoType: String, CaseIterable {
     case thumb, regular, small
 }
@@ -75,7 +75,7 @@ struct Photo: Codable {
         
     struct Urls: Codable, Hashable {
         let thumb: String   // Grid
-        let small: String   // Peek-Pop
+        let small: String   // Context Menu
         let regular: String // Viewing
     }
     

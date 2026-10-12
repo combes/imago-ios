@@ -27,6 +27,7 @@ Image is an iOS sample application for interacting with the Unsplash API.
 4. Select thumbnail to show large image size, photographer, tappable profile link, and description.
 5. Zoom in on any image using pinch open/close.
 6. Double-tap on image to zoom out after image zoom.
+7. Long press thumbnail to display photo.
 
 ## Usage
 
