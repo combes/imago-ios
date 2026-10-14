@@ -25,7 +25,8 @@ final class PhotoProvider {
     var photos: [Photo] = []
     var error: Error?
     
-    private class DataObject {
+    /// Provides class-based wrapper for `Data` object used in a cache.
+    private class CacheObject {
         let data: Data
         init(data: Data) {
             self.data = data
@@ -33,7 +34,7 @@ final class PhotoProvider {
     }
     
     @ObservationIgnored
-    private var cache: NSCache<NSString, DataObject> = .init()
+    private var cache: NSCache<NSString, CacheObject> = .init()
     private var loadDataType: LoadDataType = .live
     
     init(loadDataType: LoadDataType = .live) {
