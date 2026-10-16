@@ -8,10 +8,6 @@
 import Observation
 import SwiftUI
 
-extension EnvironmentValues {
-    @Entry var sampleData = false
-}
-
 @main
 struct ImagoApp: App {
     var body: some Scene {
@@ -20,10 +16,9 @@ struct ImagoApp: App {
             if NSClassFromString("XCTestCase") != nil {
                 Text("Running Tests...")
             } else if ProcessInfo.processInfo.arguments.contains("--sampleData") {
-                ContentView(provider: PhotoProvider(loadDataType: .sample(.valid)))
-                    .environment(\.sampleData, true)
+                ContentView(provider: SamplePhotosViewModel())
             } else {
-                ContentView()
+                ContentView(provider: PhotosViewModel())
             }
         }
     }

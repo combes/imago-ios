@@ -8,9 +8,16 @@
 import SwiftUI
 
 struct ContentView: View {
-    var provider = PhotoProvider()
+    var provider: PhotoProviding
     @State private var searchIsActive = false
     @State private var searchText: String = ""
+    
+    private var isSampleData: Bool {
+        if provider is SamplePhotosViewModel {
+            return true
+        }
+        return false
+    }
     
     var body: some View {
         NavigationStack {
@@ -40,13 +47,16 @@ struct ContentView: View {
             provider.fetchPhotos(searchText: searchText)
         }
         .onAppear {
-            provider.fetchPhotos()
+            if isSampleData {
+                // Show sample data immediately to support testing
+                provider.fetchPhotos(searchText: searchText)
+            }
         }
     }
 }
 
 struct PhotoGrid: View {
-    var provider = PhotoProvider()
+    var provider: PhotoProviding
     static let gridSpacing: CGFloat = 2
     static let gridItem = GridItem(.flexible(minimum: 50,
                                              maximum: .infinity),
@@ -201,18 +211,17 @@ struct PhotoCell: View {
 }
 
 #Preview("Sample Photos") {
-    ContentView(provider: PhotoProvider(loadDataType: .sample(.valid)))
-        .environment(\.sampleData, true)
+    ContentView(provider: SamplePhotosViewModel())
 }
 
 #Preview("Image Error") {
-    ContentView(provider: PhotoProvider(loadDataType: .sample(.invalid)))
+    ContentView(provider: SamplePhotosViewModel(sampleDataType: .invalid))
 }
 
 #Preview("JSON Error") {
-    ContentView(provider: PhotoProvider(loadDataType: .sample(.error)))
+    ContentView(provider: SamplePhotosViewModel(sampleDataType: .error))
 }
 
 #Preview("Empty") {
-    ContentView(provider: PhotoProvider(loadDataType: .sample(.empty)))
+    ContentView(provider: SamplePhotosViewModel(sampleDataType: .empty))
 }

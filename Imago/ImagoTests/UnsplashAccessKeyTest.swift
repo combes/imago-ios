@@ -10,6 +10,7 @@ import Testing
 
 struct UnsplashAccessKeyTest {
     
+    // NOTE: This test would fail on a build server due to missing file.
     @Test("Verify access key file is present in bundle") func loadAccessKey() throws {
         _ = try UnsplashAccessKey.loadAccessKey()
     }

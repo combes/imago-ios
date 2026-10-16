@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+extension EnvironmentValues {
+    @Entry var sampleData = false
+}
+
 struct PhotoView: View {
     let photo: Photo
     private var imageURL: URL  {
