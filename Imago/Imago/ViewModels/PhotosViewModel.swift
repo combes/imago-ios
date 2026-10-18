@@ -49,6 +49,7 @@ final class PhotosViewModel: PhotoProviding {
         // Check cache first to avoid server call
         if let data = cache.object(forKey: searchText as NSString) {
             photos = try Photos.parse(data: data.data)
+            return
         }
         
         var urlComponents = URLComponents(string: "https://api.unsplash.com/search/photos")!
