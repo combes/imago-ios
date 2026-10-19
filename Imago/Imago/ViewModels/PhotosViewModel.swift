@@ -22,7 +22,7 @@ final class PhotosViewModel: PhotoProviding {
             return
         }
                 
-        Task { // NOTE: We established @MainActor isolation via @Observable
+        Task {
             do {
                 try await fetchLiveData()
             } catch {
