@@ -14,17 +14,6 @@ final class PhotosViewModel: PhotoProviding {
     var photos: [Photo] = []
     var error: Error?
     private var searchText = ""
-    
-    /// Provides class-based wrapper for `Data` object used in a cache.
-    private class CacheObject {
-        let data: Data
-        init(data: Data) {
-            self.data = data
-        }
-    }
-    
-    @ObservationIgnored
-    private var cache: NSCache<NSString, CacheObject> = .init()
 
     func fetchPhotos(searchText: String) {
         self.searchText = searchText
@@ -45,12 +34,6 @@ final class PhotosViewModel: PhotoProviding {
     private func fetchLiveData() async throws {
         defer { isLoading = false }
         isLoading = true
-
-        // Check cache first to avoid server call
-        if let data = cache.object(forKey: searchText as NSString) {
-            photos = try Photos.parse(data: data.data)
-            return
-        }
         
         var urlComponents = URLComponents(string: "https://api.unsplash.com/search/photos")!
         // It is not documented in the API https://unsplash.com/documentation#search-photos
@@ -78,7 +61,7 @@ final class PhotosViewModel: PhotoProviding {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
         request.httpMethod = "GET"
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -100,12 +83,12 @@ final class PhotosViewModel: PhotoProviding {
         default: throw URLError(.unknown)
         }
         
-        // Store data in memory-based cache
-        cache.setObject(
-            .init(data: data),
-            forKey: searchText as NSString,
-            cost: data.count
-        )
+        #if DEBUG
+        if let cacheControl = httpResponse.allHeaderFields["Cache-Control"] as? String {
+            // e.g. public,max-age=86400,stale-if-error=3600,stale-while-revalidate=60
+            print(cacheControl)
+        }
+        #endif
         
         photos = try Photos.parse(data: data)
     }
