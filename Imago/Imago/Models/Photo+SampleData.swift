@@ -14,12 +14,12 @@ extension Photos {
     
     /// Loads local real-world data to validate JSON parsing.
     /// - Returns: [Photo]
-    static func loadRealWorldSampleData() throws -> Photos {
+    static func loadRealWorldSampleData() async throws -> Photos {
         guard let sampleData else {
             fatalError("No sample data")
         }
         
-        return try Photos.parse(data: sampleData.data)
+        return try await Photos.parse(data: sampleData.data)
     }
     
     struct SampleContent {

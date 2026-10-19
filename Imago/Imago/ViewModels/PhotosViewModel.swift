@@ -13,35 +13,38 @@ final class PhotosViewModel: PhotoProviding {
     var isLoading: Bool = false
     var photos: [Photo] = []
     var error: Error?
-    private var searchText = ""
-
+    private let accessKey: String = {
+        do {
+            return try UnsplashAccessKey.loadAccessKey() ?? ""
+        } catch {
+            fatalError("Invalid access key")
+        }
+        return ""
+    }()
+    
     func fetchPhotos(searchText: String) {
-        self.searchText = searchText
-
         guard searchText.isEmpty == false else {
             return
         }
-                
+        
         Task {
+            isLoading = true
             do {
-                try await fetchLiveData()
+                photos = try await fetchLiveData(searchText: searchText)
             } catch {
                 self.error = error
             }
+            isLoading = false
         }
     }
     
-    private func fetchLiveData() async throws {
-        defer { isLoading = false }
-        isLoading = true
-        
+    @concurrent
+    private func fetchLiveData(searchText: String) async throws -> [Photo] {
         var urlComponents = URLComponents(string: "https://api.unsplash.com/search/photos")!
         // It is not documented in the API https://unsplash.com/documentation#search-photos
         // However, on testing of the web interface it appears hyphens are used in place of spaces.
         // let escapedText = searchText.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
         let escapedText = searchText.components(separatedBy: .whitespaces).joined(separator: "-")
-        
-        let accessKey = try UnsplashAccessKey.loadAccessKey() ?? ""
         
         // Define the query parameters
         let parameters: [String: String] = [
@@ -90,6 +93,6 @@ final class PhotosViewModel: PhotoProviding {
         }
         #endif
         
-        photos = try Photos.parse(data: data)
+        return try await Photos.parse(data: data)
     }
 }

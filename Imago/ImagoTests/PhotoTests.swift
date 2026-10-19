@@ -14,12 +14,12 @@ struct PhotoTests {
     @Test("Test parsing of valid server response to ensure client processing")
     func loadRealWorldSampleData() async throws {
         try #require(Photos.sampleData != nil, "Sample data should not be nil")
-        let photos = try Photos.loadRealWorldSampleData()
+        let photos = try await Photos.loadRealWorldSampleData()
         #expect(photos.count == 30, "Invalid photo count")
     }
     
     @Test("Test parsing of invalid JSON from server response")
-    func parseInvalid() throws {
+    func parseInvalid() async throws {
         let invalidJSON = """
         {
             "total": 1,
@@ -27,8 +27,8 @@ struct PhotoTests {
         """
 
         let jsonData = try #require(invalidJSON.data(using: .utf8))
-        #expect(throws: DecodingError.self) {
-            _ = try Photos.parse(data: jsonData)
+        await #expect(throws: DecodingError.self) {
+            _ = try await Photos.parse(data: jsonData)
         }
     }
     

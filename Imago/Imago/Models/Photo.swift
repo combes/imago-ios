@@ -120,7 +120,7 @@ extension Photos {
     /// Parse JSON content as `UnsplashAPIResponse`
     /// - Parameter data: data containing JSON object
     /// - Returns: [Photo]]
-    static func parse(data: Data) throws -> Photos {
+    static func parse(data: Data) async throws -> Photos {
         let decoder = JSONDecoder()
         var photos: Photos = []
         
