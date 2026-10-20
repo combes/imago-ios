@@ -7,17 +7,13 @@
 
 import SwiftUI
 
-extension EnvironmentValues {
-    @Entry var sampleData = false
-}
-
 struct PhotoView: View {
     let photo: Photo
     private var imageURL: URL  {
         photo.url(forType: .regular)
     }
     
-    @Environment(\.sampleData) var sampleData
+    @Environment(\.sampleData) var isSampleData
     
     @State private var currentZoom = 0.0
     @State private var totalZoom = 1.0
@@ -33,7 +29,7 @@ struct PhotoView: View {
     }
     
     private var isUnsplashLabelHidden: Bool {
-        if sampleData || shouldHideLabels {
+        if isSampleData || shouldHideLabels {
             // Always hide since sample images are not from Unsplash
             return true
         }

@@ -8,29 +8,24 @@
 import SwiftUI
 
 struct ContentView: View {
-    var provider: PhotoProviding
+    var viewModel: PhotosViewModel
+    @State var searchText: String = ""
     @State private var searchIsActive = false
-    @State private var searchText: String = ""
     
-    private var isSampleData: Bool {
-        if provider is SamplePhotosViewModel {
-            return true
-        }
-        return false
-    }
+    @Environment(\.sampleData) var isSampleData
     
     var body: some View {
         NavigationStack {
             Spacer()
                 .navigationTitle("Imago")
-            if provider.isLoading {
+            if viewModel.isLoading {
                 ProgressView()
                     .scaleEffect(2)
                     .frame(maxWidth: .infinity)
                     .aspectRatio(1, contentMode: .fill)
                 Spacer()
             } else {
-                PhotoGrid(provider: provider)
+                PhotoGrid(viewModel: viewModel)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -44,19 +39,23 @@ struct ContentView: View {
         .textInputAutocapitalization(.never)
         .autocorrectionDisabled(true)
         .onSubmit(of: .search) {
-            provider.fetchPhotos(searchText: searchText)
+            Task {
+                await viewModel.fetchPhotos(searchText: searchText)
+            }
         }
         .onAppear {
             if isSampleData {
                 // Show sample data immediately to support testing
-                provider.fetchPhotos(searchText: searchText)
+                Task {
+                    await viewModel.fetchPhotos(searchText: searchText)
+                }
             }
         }
     }
 }
 
 struct PhotoGrid: View {
-    var provider: PhotoProviding
+    var viewModel: PhotosViewModel
     static let gridSpacing: CGFloat = 2
     static let gridItem = GridItem(.flexible(minimum: 50,
                                              maximum: .infinity),
@@ -74,11 +73,11 @@ struct PhotoGrid: View {
     }
     
     var body: some View {
-        if provider.error != nil {
+        if viewModel.error != nil {
             StatusView(image: "exclamationmark.warninglight.fill",
                        color: .yellow,
                        title: "Server Error")
-        } else if provider.photos.isEmpty {
+        } else if viewModel.photos.isEmpty {
             StatusView(image: "photo.stack",
                        color: .gray.opacity(0.5),
                        title: "Empty")
@@ -89,7 +88,7 @@ struct PhotoGrid: View {
                         columns: layout,
                         spacing: Self.gridSpacing
                     ) {
-                        ForEach(provider.photos, id: \.self) { photo in
+                        ForEach(viewModel.photos, id: \.self) { photo in
                             NavigationLink(value: photo) {
                                 PhotoCell(photo: photo, presentedPhoto: $presentedPhotos)
                             }
@@ -211,17 +210,25 @@ struct PhotoCell: View {
 }
 
 #Preview("Sample Photos") {
-    ContentView(provider: SamplePhotosViewModel())
+    @Previewable @State var searchText: String = "lighthouse"
+    ContentView(viewModel: PhotosViewModel(service: MockPhotoService()), searchText: searchText)
+        .environment(\.sampleData, true)
 }
 
 #Preview("Image Error") {
-    ContentView(provider: SamplePhotosViewModel(sampleDataType: .invalid))
+    @Previewable @State var searchText: String = "lighthouse"
+    ContentView(viewModel: PhotosViewModel(service: MockPhotoService(sampleDataType: .invalid)), searchText: searchText)
+        .environment(\.sampleData, true)
 }
 
 #Preview("JSON Error") {
-    ContentView(provider: SamplePhotosViewModel(sampleDataType: .error))
+    @Previewable @State var searchText: String = "lighthouse"
+    ContentView(viewModel: PhotosViewModel(service: MockPhotoService(sampleDataType: .error)), searchText: searchText)
+        .environment(\.sampleData, true)
 }
 
 #Preview("Empty") {
-    ContentView(provider: SamplePhotosViewModel(sampleDataType: .empty))
+    @Previewable @State var searchText: String = "lighthouse"
+    ContentView(viewModel: PhotosViewModel(service: MockPhotoService(sampleDataType: .empty)), searchText: searchText)
+        .environment(\.sampleData, true)
 }
