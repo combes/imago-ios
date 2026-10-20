@@ -33,11 +33,12 @@ final class PhotosViewModel {
         }
 
         isLoading = true
+        defer { isLoading = false }
+        
         do {
             photos = try await service.fetch(searchText: searchText)
         } catch {
             self.error = error
         }
-        isLoading = false
     }
 }
