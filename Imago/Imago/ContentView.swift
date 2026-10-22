@@ -90,12 +90,15 @@ struct PhotoGrid: View {
                     ) {
                         ForEach(viewModel.photos, id: \.self) { photo in
                             NavigationLink(value: photo) {
-                                PhotoCell(photo: photo, presentedPhoto: $presentedPhotos)
+                                PhotoCell(photo: photo,
+                                          viewModel: viewModel,
+                                          presentedPhoto: $presentedPhotos)
                             }
                         }
                     }
                     .navigationDestination(for: Photo.self) { photo in
-                        PhotoView(photo: photo)
+                        PhotoListView(photos: viewModel.photos,
+                                      currentIndex: viewModel.indexOf(photo: photo))
                     }
                 }
             }
@@ -128,10 +131,9 @@ struct PhotoPreview: View {
             switch phase {
             case .empty:
                 ProgressView()
+                    .scaleEffect(2)
                     .frame(maxWidth: .infinity)
                     .aspectRatio(1, contentMode: .fill)
-                    .background(.gray.opacity(0.2))
-                
             case .success(let image):
                 image
                     .resizable()
@@ -159,6 +161,7 @@ struct PhotoPreview: View {
 
 struct PhotoCell: View {
     let photo: Photo
+    let viewModel: PhotosViewModel
     @Binding var presentedPhoto: [Photo]
     
     private var imageURL: URL  {
@@ -167,16 +170,17 @@ struct PhotoCell: View {
     
     var body: some View {
         NavigationLink {
-            PhotoView(photo: photo)
+            PhotoListView(photos: viewModel.photos, currentIndex: viewModel.indexOf(photo: photo))
         } label: {
             AsyncImage(url: imageURL) { phase in
                 switch phase {
                 case .empty:
+                    // TODO: Consolidate
                     ProgressView()
+                        .scaleEffect(2)
                         .frame(maxWidth: .infinity)
                         .aspectRatio(1, contentMode: .fill)
-                        .background(.gray.opacity(0.2))
-                    
+
                 case .success(let image):
                     image
                         .resizable()

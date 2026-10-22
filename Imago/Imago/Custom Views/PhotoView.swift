@@ -20,6 +20,7 @@ struct PhotoView: View {
     @State private var isDragging = false
     @State private var offset = CGSize.zero
     @State private var totalOffset = CGSize.zero
+    @State private var isDragActive: Bool = false
     private var isZoomed: Bool {
         totalZoom > 1
     }
@@ -65,6 +66,8 @@ struct PhotoView: View {
                 if totalZoom < 1 {
                     // Reset offset and zoom if image is smaller than original size
                     resetZoom()
+                } else {
+                    isDragActive = true
                 }
             }
     }
@@ -77,6 +80,7 @@ struct PhotoView: View {
     }
     
     func resetZoom() {
+        isDragActive = false
         offset = .zero
         totalOffset = .zero
         totalZoom = 1
@@ -89,9 +93,9 @@ struct PhotoView: View {
                 switch phase {
                 case .empty:
                     ProgressView()
+                        .scaleEffect(2)
                         .frame(maxWidth: .infinity)
                         .aspectRatio(1, contentMode: .fill)
-                        .background(.gray.opacity(0.1))
                     
                 case .success(let image):
                     VStack(alignment: .leading) {
@@ -102,7 +106,7 @@ struct PhotoView: View {
                             .aspectRatio(contentMode: .fit)
                             .scaleEffect(currentZoom + totalZoom)
                         // Disovered drag gesture must be added before magnify gesture
-                            .gesture(dragGesture)
+                            .gesture(dragGesture, isEnabled: isDragActive)
                             .gesture(magnifyGesture)
                             .gesture(tapGesture)
                             .accessibilityZoomAction { action in

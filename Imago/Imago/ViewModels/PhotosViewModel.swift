@@ -42,3 +42,9 @@ final class PhotosViewModel {
         }
     }
 }
+
+extension PhotosViewModel {
+    func indexOf(photo: Photo) -> Int {
+        photos.firstIndex(of: photo) ?? 0
+    }
+}
