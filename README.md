@@ -29,6 +29,12 @@ Image is an iOS sample application for interacting with the Unsplash API.
 6. Double-tap on image to zoom out after image zoom.
 7. Long press thumbnail to display photo.
 
+## Demo
+
+<p align="center">
+  <img src="Imago/doc/demo-sample-480.mov" alt="Initial screen state upon launch" width="200">
+</p>
+
 ## Usage
 
 This application is intended for demonstration purposes only and not to be deployed on the App Store.
