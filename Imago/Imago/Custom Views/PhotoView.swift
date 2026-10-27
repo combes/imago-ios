@@ -86,82 +86,140 @@ struct PhotoView: View {
         totalZoom = 1
     }
     
+    @available(iOS 27, *)
+    // TODO: throw and return
+    func accessDownloadedData() {
+        let request = URLRequest(url: imageURL)
+        
+        // Grab the data out of the shared URLCache that AsyncImage used
+        // Find data for this request
+        if let cachedResponse = URLCache.shared.cachedResponse(for: request) {
+            let rawData = cachedResponse.data
+            // TODO: Convert data to CIImage for processing
+            // You can now write rawData to a file or convert to UIImage
+        } else {
+            print("Could not find data in cache for URL \(imageURL.absoluteString).")
+        }
+    }
+    
+    // TODO: Handle canvas button operation
+    func fetchData(url: URL) async {
+        do {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            if !isSampleData {
+                guard let httpResponse = response as? HTTPURLResponse,
+                      httpResponse.statusCode == 200
+                else
+                {
+                    throw URLError(.badServerResponse)
+                }
+            }
+            
+            if let image = UIImage(data: data),
+               let ciImage = CIImage(image: image) {
+                // TODO: Move this to a containing method
+                await classifyImage(ciImage: ciImage)
+            }
+            
+        } catch {
+            
+        }
+    }
+    
     var body: some View {
-        // TODO: Resolve code duplication with code in ContentView
-        VStack(alignment: .center) {
-            AsyncImage(url: imageURL) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .scaleEffect(2)
-                        .frame(maxWidth: .infinity)
-                        .aspectRatio(1, contentMode: .fill)
-                    
-                case .success(let image):
-                    VStack(alignment: .leading) {
-                        image
-                            .resizable()
-                            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                            .offset(offset)
-                            .aspectRatio(contentMode: .fit)
-                            .scaleEffect(currentZoom + totalZoom)
-                        // Disovered drag gesture must be added before magnify gesture
-                            .gesture(dragGesture, isEnabled: isDragActive)
-                            .gesture(magnifyGesture)
-                            .gesture(tapGesture)
-                            .accessibilityZoomAction { action in
-                                // Allow assistive technologies to control the zoom level
-                                if action.direction == .zoomIn {
-                                    totalZoom += 1
-                                } else {
-                                    totalZoom -= 1
+        ZStack {
+            // TODO: Resolve code duplication with code in ContentView
+            VStack(alignment: .center) {
+                // TODO: iOS 27 can access image data from the cache
+                // let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad, timeoutInterval: 30)
+                // AsyncImage(request: request) { phase in //
+                AsyncImage(url: imageURL) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .scaleEffect(2)
+                            .frame(maxWidth: .infinity)
+                            .aspectRatio(1, contentMode: .fill)
+                        
+                    case .success(let image):
+                        VStack(alignment: .leading) {
+                            image
+                                .resizable()
+                                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                                .offset(offset)
+                                .aspectRatio(contentMode: .fit)
+                                .scaleEffect(currentZoom + totalZoom)
+                            // Disovered drag gesture must be added before magnify gesture
+                                .gesture(dragGesture, isEnabled: isDragActive)
+                                .gesture(magnifyGesture)
+                                .gesture(tapGesture)
+                                .accessibilityZoomAction { action in
+                                    // Allow assistive technologies to control the zoom level
+                                    if action.direction == .zoomIn {
+                                        totalZoom += 1
+                                    } else {
+                                        totalZoom -= 1
+                                    }
                                 }
-                            }
-                            .overlay(alignment: .bottom) {
-                                if !isUnsplashLabelHidden {
-                                    HStack {
-                                        Spacer()
-                                        VStack(alignment: .trailing) {
-                                            Text("Source: Unsplash")
-                                                .font(.footnote)
-                                                .foregroundStyle(.white)
-                                                .padding([.leading, .trailing], 8)
-                                                .background(.black)
-                                                .opacity(0.6)
+                                .overlay(alignment: .bottom) {
+                                    if !isUnsplashLabelHidden {
+                                        HStack {
+                                            Spacer()
+                                            VStack(alignment: .trailing) {
+                                                Text("Source: Unsplash")
+                                                    .font(.footnote)
+                                                    .foregroundStyle(.white)
+                                                    .padding([.leading, .trailing], 8)
+                                                    .background(.black)
+                                                    .opacity(0.6)
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        
-                        if !shouldHideLabels {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
-                                    .foregroundStyle(.foreground)
-                                    .font(.subheadline)
-                                    .background(.thinMaterial)
-                                if !photo.description.isNilOrEmpty {
-                                    Text(photo.description ?? "")
-                                        .font(.footnote)
+                            
+                            if !shouldHideLabels {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Link(photo.user.name, destination: URL(string: photo.user.links.profile)!)
+                                        .foregroundStyle(.foreground)
+                                        .font(.subheadline)
                                         .background(.thinMaterial)
+                                    if !photo.description.isNilOrEmpty {
+                                        Text(photo.description ?? "")
+                                            .font(.footnote)
+                                            .background(.thinMaterial)
+                                    }
                                 }
+                                .padding(.leading, 4)
                             }
-                            .padding(.leading, 4)
                         }
+                        Spacer()
+                        
+                    case .failure:
+                        StatusView(image: "photo.badge.exclamationmark",
+                                   color: .gray.opacity(0.5),
+                                   title: "Empty")
+                        
+                    @unknown default:
+                        EmptyView()
                     }
-                    Spacer()
-                    
-                case .failure:
-                    StatusView(image: "photo.badge.exclamationmark",
-                               color: .gray.opacity(0.5),
-                               title: "Empty")
-                    
-                @unknown default:
-                    EmptyView()
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .center)
+            .ignoresSafeArea(edges: .top)
+            
+            VStack(alignment: .trailing) {
+                Spacer()
+                // TODO: Add button animation and color
+                Button("Identify", systemImage: "wand.and.sparkles") {
+                    Task {
+                        await fetchData(url: imageURL)
+                        // TODO: Set Text field with results
+                    }
+                    
+                }
+            }
+            .backgroundStyle(.black)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .ignoresSafeArea(edges: .top)
     }
 }
 

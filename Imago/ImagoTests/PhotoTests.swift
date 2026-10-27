@@ -11,6 +11,20 @@ import UIKit
 
 struct PhotoTests {
     
+    @Test("Test classifying an image using CoreML")
+    func testImageClassification() async throws {
+        let photos = Photos.loadSampleData()
+        let url = await photos.last!.url(forType: .regular)
+        let data = try Data(contentsOf: url)
+        let ciImage = CIImage(data: data)!
+        Task {
+            await classifyImage(ciImage: ciImage)
+        }
+        
+        // TODO: Need an async wait for `classifyImage` to complete its work
+        try await Task.sleep(nanoseconds: 1000000000 * 3)
+    }
+    
     @Test("Test parsing of valid server response to ensure client processing")
     func loadRealWorldSampleData() async throws {
         try #require(Photos.sampleData != nil, "Sample data should not be nil")
