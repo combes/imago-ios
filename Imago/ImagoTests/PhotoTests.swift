@@ -16,9 +16,12 @@ struct PhotoTests {
         let photos = Photos.loadSampleData()
         let url = await photos.last!.url(forType: .regular)
         let data = try Data(contentsOf: url)
-        let ciImage = CIImage(data: data)!
+        let image = UIImage(data: data)!
+        let cgImage = image.cgImage!
         Task {
-            await classifyImage(ciImage: ciImage)
+            await classifyImage(cgImage: cgImage) { text in
+                print(text ?? "Unknown")
+            }
         }
         
         // TODO: Need an async wait for `classifyImage` to complete its work

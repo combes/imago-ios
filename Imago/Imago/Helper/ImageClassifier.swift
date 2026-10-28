@@ -10,7 +10,7 @@ import CoreML
 import UIKit
 
 // TODO: Encapsulate and cleanup
-func classifyImage(ciImage: CIImage) async {
+func classifyImage(cgImage: CGImage, completion: @escaping (String?) -> Void) async {
     do {
         let config = MLModelConfiguration()
         let mlModel = try VNCoreMLModel(for: MobileNetV2(configuration: config).model)
@@ -21,10 +21,15 @@ func classifyImage(ciImage: CIImage) async {
                 return
             }
             
+            let maxTwoResults = topResult.identifier.split(separator: ",").prefix(2)
+            let maxTwoResultsString = maxTwoResults.joined(separator: ",")
+            let confidenceString = String(format: "%.0f", topResult.confidence * 100)
+            completion(maxTwoResultsString + " (\(confidenceString)%)")
+
             print("Prediction: \(topResult.identifier) with confidence: \(topResult.confidence)")
         }
 
-        let handler = VNImageRequestHandler(ciImage: ciImage, options: [:])
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         DispatchQueue.global(qos: .userInitiated).async {
             do {
                 try handler.perform([request])
