@@ -9,7 +9,7 @@
 import CoreML
 import UIKit
 
-// TODO: Encapsulate and cleanup
+// TODO: Make testable for "error"
 func classifyImage(cgImage: CGImage, completion: @escaping (String?) -> Void) async {
     do {
         let config = MLModelConfiguration()
@@ -34,10 +34,10 @@ func classifyImage(cgImage: CGImage, completion: @escaping (String?) -> Void) as
             do {
                 try handler.perform([request])
             } catch {
-                print("Failed to perform Vision request: \(error)")
+                completion("Failed: \(error)")
             }
         }
     } catch {
-        print("Image recognition failed: \(error.localizedDescription)")
+        completion("Failed: \(error)")
     }
 }
