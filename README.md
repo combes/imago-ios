@@ -76,6 +76,7 @@ The ML model can return multiple classifications but I limited the count to 2.
 6. Had a mis-step with adding the 'access-key' file as I added it with a placeholder, added this file to git ignore, assuming the file would remain, but further changes would be ignored (i.e. accidentally attempting to check in this file with the real-world key). Instead, user will need to manually add this file to the project.
 7. Discovered searching using spaces with the API 'GET' endpoint does not support [url-encoded](https://developer.mozilla.org/en-US/docs/Glossary/Percent-encoding) strings (e.g. "pumpkin%20patch").  Instead, a hyphen is required (e.g. "pumpkin-patch").
 8. Learned how to use gesture recognizers in SwiftUI. I had previously made use of gestures using Objective-C (and UIKit) many years ago and making use of this knowledge with SwiftUI.
+9. Learned how to incorporate a Machine Learning (ML) Model to provide basic image classification, along with a supporting UI.
 
 ## Success
 
