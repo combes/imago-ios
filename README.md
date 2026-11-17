@@ -28,6 +28,7 @@ Image is an iOS sample application for interacting with the Unsplash API.
 5. Zoom in on any image using pinch open/close.
 6. Double-tap on image to zoom out after image zoom.
 7. Long press thumbnail to display photo.
+8. Image recognition using an AI model
 
 ## Demo
 
@@ -52,6 +53,19 @@ This application is intended for demonstration purposes only and not to be deplo
 4. Copy the "Access Key" from the Unsplash app and paste into the 'access-key' file.
 5. Edit Scheme > Imago > Edit Scheme... > Uncheck --sampleData
 6. Build and run to show live data.
+
+## AI Image Classification
+
+I thought it would be interesting to add image recognition to see what level of accuracy could be attained.  Therefore, after some basic research, I incorporated the [MobileNetV2](https://developer.apple.com/machine-learning/models/?q=MobileNetV2) ML model, along with the necessary code to make use of it.  As stated in the documentation, "The MobileNetv2 architecture trained to classify the dominant object in a camera frame or image."  The results are shown in the table below.
+
+| Airliner | Golfer | Vehicle (Rear) | Vehicle (Front) |   
+| --- | --- | --- | --- |
+| <img src="Imago/doc/classify-airliner.jpg" alt="Image of an airliner" width="200"> | <img src="Imago/doc/classify-golf.jpg" alt="Image of a golfer" width="200"> | <img src="Imago/doc/classify-vehicle-rear.jpg" alt="Image of a vehicle rear" width="200"> | <img src="Imago/doc/classify-vehicle.jpg" alt="Image of a vehicle" width="200"> | 
+
+For the "Golfer" image, it is interesting to see the golf ball is considered the primary object at 68%.  
+For the "Vehicle (Rear)" it is possible the AI model was not trained on this type of data.
+
+The ML model can return multiple classifications but I limited the count to 2.
 
 ## Learnings
 
