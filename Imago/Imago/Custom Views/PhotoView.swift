@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PhotoView: View {
     let photo: Photo
+    var classifier: Classifier = .default
     
     private var imageURL: URL  {
         photo.url(forType: .regular)
@@ -23,7 +24,10 @@ struct PhotoView: View {
     @State private var totalOffset = CGSize.zero
     @State private var isDragActive: Bool = false
     @State private var renderedImage: Image?
-    @State private var imageClassification: String?
+    @State private var imageClassificationOne: String?
+    @State private var imageClassificationTwo: String?
+    @State private var percentClassification: String?
+    @State private var error: Error?
     private var isZoomed: Bool {
         totalZoom > 1
     }
@@ -122,6 +126,7 @@ struct PhotoView: View {
                                     }
                                 }
                                 .onAppear() {
+                                    // Save reference to generated `Image` so we can use it with the image classifier
                                     renderedImage = image
                                 }
                                 .overlay(alignment: .bottom) {
@@ -173,23 +178,63 @@ struct PhotoView: View {
             if !shouldHideLabels {
                 VStack(alignment: .center) {
                     Spacer()
-                    if let imageClassification {
-                        Text(imageClassification)
-                            .fontWeight(.bold)
-                            .padding(8)
-                            .frame(maxWidth: .infinity)
-                            .background(.red)
+                    HStack {
+                        if let error {
+                            Text(error.localizedDescription)
+                                .fontWeight(.bold)
+                                .padding(8)
+                                .frame(maxWidth: .infinity)
+                                .background(.red)
+                        }
+                        if let imageClassificationOne {
+                            Text(imageClassificationOne)
+                                .fontWeight(.bold)
+                                .padding(8)
+                                .background(.green)
+                                .cornerRadius(8)
+                            if let imageClassificationTwo {
+                                Text(imageClassificationTwo)
+                                    .fontWeight(.bold)
+                                    .padding(8)
+                                    .background(.green)
+                                    .cornerRadius(8)
+                            }
+                            if let percentClassification {
+                                Text(percentClassification)
+                                    .fontWeight(.bold)
+                                    .padding(8)
+                                    .background(.black)
+                                    .foregroundStyle(.white)
+                                    .cornerRadius(8)
+                            }
+                        }
                     }
+
                     // TODO: Add image animation
                     Button("Identify", systemImage: "wand.and.sparkles") {
+                        // Three strategies to obtaining a "rendered" image for classification:
+                        // 1. Grab a rendering in the `onAppear` event (see above).
                         let imageFetcher: ImageFetchStrategy = .render(image: renderedImage)
+                        // 2. Find a cached version of the image after loading from network (iOS 27).
                         //.cache(url: imageURL)
+                        // 3. Download the image directly (not efficient).
                         //.download(url: imageURL, isSampleData: isSampleData)
                         Task {
                             if let cgImage = await imageFetcher.fetch() {
-                                await classifyImage(cgImage: cgImage) { text in
-                                    imageClassification = text
-                                }
+                                let classifier = ImageClassifier(classifier: classifier)
+                                classifier.classifyImage(cgImage: cgImage, completion: { result in
+                                    switch result {
+                                    case .failure(let error):
+                                        self.error = error
+                                        break
+                                    case .success(let classification):
+                                        imageClassificationOne = classification.classifications.first
+                                        if classification.classifications.count > 1 {
+                                            imageClassificationTwo = classification.classifications[1]
+                                        }
+                                        percentClassification = classification.confidenceString()
+                                    }
+                                })
                             }
                         }
                     }
@@ -203,6 +248,11 @@ struct PhotoView: View {
 
 #Preview("Sample Photo") {
     PhotoView(photo: Photos.loadSampleData().first!)
+        .environment(\.sampleData, true)
+}
+
+#Preview("Classification Error") {
+    PhotoView(photo: Photos.loadSampleData().first!, classifier: .failing)
         .environment(\.sampleData, true)
 }
 

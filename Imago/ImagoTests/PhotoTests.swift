@@ -5,29 +5,63 @@
 //  Created by Christopher Combes on 9/16/26.
 //
 
+@preconcurrency import Vision
+import CoreML
 import Testing
 @testable import Imago
 import UIKit
 
-struct PhotoTests {
-    
-    @Test("Test classifying an image using CoreML")
-    func testImageClassification() async throws {
-        let photos = Photos.loadSampleData()
-        let url = await photos.last!.url(forType: .regular)
-        let data = try Data(contentsOf: url)
-        let image = UIImage(data: data)!
-        let cgImage = image.cgImage!
-        Task {
-            await classifyImage(cgImage: cgImage) { text in
-                print(text ?? "Unknown")
+// MARK: Helper Methods
+
+private func getSampleImage() throws -> CGImage {
+    let photos = Photos.loadSampleData()
+    let photo = try #require(photos.first)
+    let url =  photo.url(forType: .regular)
+    let data = try Data(contentsOf: url)
+    let image = try #require(UIImage(data: data))
+    let cgImage = try #require(image.cgImage)
+    return cgImage
+}
+
+@MainActor
+private func runClassificationTest(using classifier: Classifier, expectedClassification: ClassificationResult, classificationError: ClassificationError? = nil) async throws {
+    let cgImage = try getSampleImage()
+    let imageClassifier = ImageClassifier(classifier: classifier)
+
+    await confirmation("Image confirmation test") { confirm in
+        let _: Void = await withCheckedContinuation { continuation in
+             imageClassifier.classifyImage(cgImage: cgImage) { result in
+                 switch result {
+                 case .failure(let error):
+                     #expect(classificationError == error)
+                 case .success(let classification):
+                     #expect(expectedClassification == classification)
+                 }
+                confirm()
+                continuation.resume()
             }
         }
-        
-        // TODO: Need an async wait for `classifyImage` to complete its work
-        try await Task.sleep(nanoseconds: 1000000000 * 3)
+    }
+}
+
+// MARK: Tests
+
+struct PhotoTests {
+    
+    @MainActor
+    @Test("Test classifying an image using CoreML")
+    func testImageClassification() async throws {
+        let classification = ClassificationResult(classifications: ["beacon", "lighthouse"], percent: 52.27701)
+        try await runClassificationTest(using: .default, expectedClassification: classification)
     }
     
+    @MainActor
+    @Test("Test classifying an invalid image using CoreML")
+    func testInvalidImageClassification() async throws {
+        let classification = ClassificationResult(classifications: [], percent: 0)
+        try await runClassificationTest(using: .failing, expectedClassification: classification, classificationError: .failed)
+    }
+
     @Test("Test parsing of valid server response to ensure client processing")
     func loadRealWorldSampleData() async throws {
         try #require(Photos.sampleData != nil, "Sample data should not be nil")
