@@ -100,10 +100,7 @@ struct PhotoView: View {
                 AsyncImage(url: imageURL) { phase in
                     switch phase {
                     case .empty:
-                        ProgressView()
-                            .scaleEffect(2)
-                            .frame(maxWidth: .infinity)
-                            .aspectRatio(1, contentMode: .fill)
+                        ScaledProgressView()
                         
                     case .success(let image):
                         VStack(alignment: .leading) {
@@ -210,7 +207,6 @@ struct PhotoView: View {
                         }
                     }
 
-                    // TODO: Add image animation
                     Button("Identify", systemImage: "wand.and.sparkles") {
                         // Three strategies to obtaining a "rendered" image for classification:
                         // 1. Grab a rendering in the `onAppear` event (see above).

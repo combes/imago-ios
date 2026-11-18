@@ -19,10 +19,7 @@ struct ContentView: View {
             Spacer()
                 .navigationTitle("Imago")
             if viewModel.isLoading {
-                ProgressView()
-                    .scaleEffect(2)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fill)
+                ScaledProgressView()
                 Spacer()
             } else {
                 PhotoGrid(viewModel: viewModel)
@@ -130,10 +127,7 @@ struct PhotoPreview: View {
         AsyncImage(url: imageURL) { phase in
             switch phase {
             case .empty:
-                ProgressView()
-                    .scaleEffect(2)
-                    .frame(maxWidth: .infinity)
-                    .aspectRatio(1, contentMode: .fill)
+                ScaledProgressView()
             case .success(let image):
                 image
                     .resizable()
@@ -175,11 +169,7 @@ struct PhotoCell: View {
             AsyncImage(url: imageURL) { phase in
                 switch phase {
                 case .empty:
-                    // TODO: Consolidate
-                    ProgressView()
-                        .scaleEffect(2)
-                        .frame(maxWidth: .infinity)
-                        .aspectRatio(1, contentMode: .fill)
+                    ScaledProgressView()
 
                 case .success(let image):
                     image
