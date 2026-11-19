@@ -103,6 +103,35 @@ struct PhotoGrid: View {
     }
 }
 
+struct ImageLoadingView: View {
+    public let imageURL: URL
+    var body: some View {
+        AsyncImage(url: imageURL) { phase in
+            switch phase {
+            case .empty:
+                ScaledProgressView()
+            case .success(let image):
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    .aspectRatio(1, contentMode: .fill)
+                    .clipped()
+            case .failure:
+                // FIXME: Seeing "cancelled" as the reason for not loading some images from Unsplash
+                let _ = debugPrint("Failed to load image from \(imageURL.absoluteString): \(phase.error?.localizedDescription ?? "No error provided")")
+                Image(systemName: "photo.badge.exclamationmark")
+                    .foregroundColor(.gray)
+                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .aspectRatio(1, contentMode: .fill)
+                    .background(.gray.opacity(0.2))
+                
+            @unknown default:
+                EmptyView()
+            }
+        }
+    }
+}
 struct PhotoPreview: View {
     let photo: Photo
     
@@ -124,32 +153,7 @@ struct PhotoPreview: View {
         .padding(.leading)
         .padding(.top, 5)
         
-        AsyncImage(url: imageURL) { phase in
-            switch phase {
-            case .empty:
-                ScaledProgressView()
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                    .aspectRatio(1, contentMode: .fill)
-                    .clipped()
-                    .gesture(TapGesture(count: 1).onEnded({ value in
-                        print("tapped image")
-                    }))
-                
-            case .failure:
-                Image(systemName: "photo.badge.exclamationmark")
-                    .foregroundColor(.gray)
-                    .frame(maxWidth: .infinity, minHeight: 100)
-                    .aspectRatio(1, contentMode: .fill)
-                    .background(.gray.opacity(0.2))
-                
-            @unknown default:
-                EmptyView()
-            }
-        }
+        ImageLoadingView(imageURL: imageURL)
     }
 }
 
@@ -166,32 +170,7 @@ struct PhotoCell: View {
         NavigationLink {
             PhotoListView(photos: viewModel.photos, currentIndex: viewModel.indexOf(photo: photo))
         } label: {
-            AsyncImage(url: imageURL) { phase in
-                switch phase {
-                case .empty:
-                    ScaledProgressView()
-
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                        .aspectRatio(1, contentMode: .fit)
-                        .clipped()
-                    
-                case .failure:
-                    // FIXME: Seeing "cancelled" as the reason for not loading some images from Unsplash
-                    let _ = debugPrint("Failed to load image from \(imageURL.absoluteString): \(phase.error?.localizedDescription ?? "No error provided")")
-                    Image(systemName: "photo.badge.exclamationmark")
-                        .foregroundColor(.gray)
-                        .frame(maxWidth: .infinity, minHeight: 100)
-                        .aspectRatio(1, contentMode: .fill)
-                        .background(.gray.opacity(0.2))
-                    
-                @unknown default:
-                    EmptyView()
-                }
-            }
+            ImageLoadingView(imageURL: imageURL)
             .contextMenu {
                 Button("See Photo") {
                     presentedPhoto.append(photo)

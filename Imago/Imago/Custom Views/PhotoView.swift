@@ -95,7 +95,6 @@ struct PhotoView: View {
     
     var body: some View {
         ZStack {
-            // TODO: Resolve code duplication with code in ContentView
             VStack(alignment: .center) {
                 AsyncImage(url: imageURL) { phase in
                     switch phase {
