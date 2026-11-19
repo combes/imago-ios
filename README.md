@@ -28,7 +28,7 @@ Image is an iOS sample application for interacting with the Unsplash API.
 5. Zoom in on any image using pinch open/close.
 6. Double-tap on image to zoom out after image zoom.
 7. Long press thumbnail to display photo.
-8. Image recognition using an AI model
+8. Image recognition using an ML model
 
 ## Demo
 
@@ -63,7 +63,7 @@ I thought it would be interesting to add image recognition to see what level of 
 | <img src="Imago/doc/classify-airliner.jpg" alt="Image of an airliner" width="200"> | <img src="Imago/doc/classify-golf.jpg" alt="Image of a golfer" width="200"> | <img src="Imago/doc/classify-vehicle-rear.jpg" alt="Image of a vehicle rear" width="200"> | <img src="Imago/doc/classify-vehicle.jpg" alt="Image of a vehicle" width="200"> | 
 
 For the "Golfer" image, it is interesting to see the golf ball is considered the primary object at 68%.  
-For the "Vehicle (Rear)" it is possible the AI model was not trained on this type of data.
+For the "Vehicle (Rear)" it is possible the ML model was not trained on this type of data.
 
 The ML model can return multiple classifications but I limited the count to 2.
 
